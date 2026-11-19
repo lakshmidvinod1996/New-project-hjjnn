@@ -1,0 +1,777 @@
+<title>Antibody Bioreactor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: instrument console. Large reactor cutaway on the left, a stack of readouts, cell close-up and run chart on the right. */
+:root {
+  --bg: #e9eef0;
+  --surface: #f8fafa;
+  --ink: #13232a;
+  --muted: #566a72;
+  --line: #c6d2d6;
+  --steel: #7f959d;
+  --glass: #dfe8eb;
+  --accent: #2a47c9;      /* antibody */
+  --accent-2: #7b93f0;    /* light chain */
+  --cell: rgba(255, 252, 244, 0.92);
+  --cell-edge: #6b5a4a;
+  --dead: #9a958f;
+  --mrna: #c0398a;
+  --glycan: #1f9a6a;
+  --warm: #d9773f;
+  --cool: #3f86bf;
+  --bubble: rgba(255,255,255,0.85);
+  --medium-dim: 1;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1316; --surface: #131d21; --ink: #e2ebed; --muted: #8b9ea5; --line: #253338;
+    --steel: #61767e; --glass: #18252a; --accent: #8aa2ff; --accent-2: #c3cffd;
+    --cell: rgba(246, 240, 228, 0.88); --cell-edge: #3b3027; --dead: #6f6b66; --mrna: #f07ac0;
+    --glycan: #4fd3a0; --warm: #e98a52; --cool: #5aa3dc; --bubble: rgba(255,255,255,0.7);
+    --medium-dim: 0.72; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1316; --surface: #131d21; --ink: #e2ebed; --muted: #8b9ea5; --line: #253338;
+  --steel: #61767e; --glass: #18252a; --accent: #8aa2ff; --accent-2: #c3cffd;
+  --cell: rgba(246, 240, 228, 0.88); --cell-edge: #3b3027; --dead: #6f6b66; --mrna: #f07ac0;
+  --glycan: #4fd3a0; --warm: #e98a52; --cool: #5aa3dc; --bubble: rgba(255,255,255,0.7);
+  --medium-dim: 0.72; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 40px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+
+header { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 5vw, 46px); line-height: 1.02; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.lede { margin: 4px 0 0; max-width: 64ch; color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.stage { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+#reactor { display: block; width: 100%; aspect-ratio: 5 / 5.6; max-height: 720px; max-width: 100%; }
+
+.caption { border-top: 1px solid var(--line); padding: 14px 16px 4px; display: flex; flex-direction: column; gap: 2px; min-height: 92px; }
+.phase { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.badge { font-family: var(--font-mono); font-weight: 500; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--surface); background: var(--glycan); border-radius: 999px; padding: 1px 8px; }
+.phase-text { margin: 0; color: var(--muted); max-width: 62ch; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 12px 16px 16px; }
+button {
+  font: 500 13px var(--font-body); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; cursor: pointer;
+}
+button:hover { border-color: var(--steel); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#play { background: var(--ink); color: var(--surface); border-color: var(--ink); min-width: 86px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: transparent; font-family: var(--font-mono); padding: 7px 10px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.scrub { display: flex; align-items: center; gap: 10px; flex: 1 1 220px; min-width: 0; }
+.scrub label { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+#day { flex: 1; min-width: 0; accent-color: var(--accent); }
+
+aside { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.card { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card h2 { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin: 0; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.card h2 small { font-family: var(--font-mono); font-weight: 400; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.ro { background: var(--surface); padding: 9px 10px 8px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ro span { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ro b { font-family: var(--font-mono); font-weight: 500; font-size: 19px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ro b i { font-style: normal; font-size: 11px; color: var(--muted); margin-left: 3px; }
+.ro.key b { color: var(--accent); }
+.yield { margin: 0; font-size: 13px; color: var(--muted); }
+.yield strong { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+@media (max-width: 420px) { .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+#cell, #chart { display: block; width: 100%; max-width: 100%; }
+#cell { aspect-ratio: 16 / 10; }
+#chart { aspect-ratio: 16 / 8; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+.steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li { padding: 12px 12px 12px 0; border-top: 3px solid var(--line); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.steps li b { font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.steps li span { font-size: 12.5px; color: var(--muted); }
+.steps li em { font-style: normal; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.steps li.on { border-top-color: var(--accent); }
+.steps li.on b { color: var(--accent); }
+@media (max-width: 760px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; } }
+.steps-h { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin: 0 0 8px; }
+.foot { font-size: 12px; color: var(--muted); margin: 0; max-width: 80ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Fed-batch CHO culture · 2,000 L stirred-tank · 14 days</p>
+    <h1>Antibody Bioreactor</h1>
+    <p class="lede">Chinese hamster ovary cells carrying the antibody's heavy- and light-chain genes grow in a stirred, sparged tank. Every cell secretes antibody into the medium, and over two weeks the broth builds up several grams per litre.</p>
+  </header>
+
+  <div class="grid">
+    <section class="panel stage" aria-label="Bioreactor animation">
+      <canvas id="reactor" role="img" aria-label="Cutaway of a stirred-tank bioreactor: cells circulate in pink culture medium, bubbles rise from the sparger, and Y-shaped antibodies accumulate."></canvas>
+      <div class="caption" aria-live="polite">
+        <p class="phase"><span id="phase">Inoculation</span><span class="badge" id="feedBadge" hidden>Feed added</span></p>
+        <p class="phase-text" id="phaseText"></p>
+      </div>
+      <div class="controls">
+        <button id="play" type="button">Pause</button>
+        <button id="restart" type="button">Restart</button>
+        <div class="seg" role="group" aria-label="Playback speed">
+          <button type="button" data-speed="0.5" aria-pressed="false">0.5×</button>
+          <button type="button" data-speed="1" aria-pressed="true">1×</button>
+          <button type="button" data-speed="2" aria-pressed="false">2×</button>
+        </div>
+        <div class="scrub">
+          <label for="day">Day</label>
+          <input id="day" type="range" min="0" max="14" step="0.05" value="0">
+        </div>
+      </div>
+    </section>
+
+    <aside>
+      <section class="panel card" aria-label="Process readouts">
+        <h2>Process readouts <small id="dayLabel">DAY 0.0 / 14</small></h2>
+        <div class="readouts">
+          <div class="ro key"><span>Antibody titer</span><b id="r-titer">0.00<i>g/L</i></b></div>
+          <div class="ro"><span>Viable cells</span><b id="r-vcd">0.5<i>×10⁶/mL</i></b></div>
+          <div class="ro"><span>Viability</span><b id="r-via">98<i>%</i></b></div>
+          <div class="ro"><span>Temperature</span><b id="r-temp">36.5<i>°C</i></b></div>
+          <div class="ro"><span>pH</span><b id="r-ph">7.05</b></div>
+          <div class="ro"><span>Dissolved O₂</span><b id="r-do">40<i>%</i></b></div>
+          <div class="ro"><span>Glucose</span><b id="r-glc">6.0<i>g/L</i></b></div>
+          <div class="ro"><span>Agitation</span><b id="r-rpm">110<i>rpm</i></b></div>
+          <div class="ro"><span>Volume</span><b id="r-vol">1,700<i>L</i></b></div>
+        </div>
+        <p class="yield">Antibody in the tank right now: <strong id="r-mass">0.0 kg</strong></p>
+      </section>
+
+      <section class="panel card" aria-label="Inside one cell">
+        <h2>Inside one CHO cell <small>GENE → PROTEIN → SECRETION</small></h2>
+        <canvas id="cell" role="img" aria-label="Close-up of a cell: mRNA leaves the nucleus, heavy and light chains are made on the ER, assembled antibodies get sugar groups in the Golgi and leave the cell in vesicles."></canvas>
+        <ul class="legend">
+          <li><span class="sw" style="background:var(--mrna)"></span>mRNA</li>
+          <li><span class="sw" style="background:var(--accent)"></span>Heavy chain</li>
+          <li><span class="sw" style="background:var(--accent-2)"></span>Light chain</li>
+          <li><span class="sw" style="background:var(--glycan)"></span>Glycan</li>
+        </ul>
+      </section>
+
+      <section class="panel card" aria-label="Run chart">
+        <h2>Run chart <small>FULL RUN SHOWN FAINT</small></h2>
+        <canvas id="chart" role="img" aria-label="Chart of viable cell density and antibody titer over 14 days."></canvas>
+        <ul class="legend">
+          <li><span class="sw" style="background:var(--cell-edge)"></span>Viable cells (×10⁶/mL, left)</li>
+          <li><span class="sw" style="background:var(--accent)"></span>Titer (g/L, right)</li>
+          <li><span class="sw" style="background:var(--glycan)"></span>Feed</li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+
+  <section aria-label="Where this step sits in manufacturing">
+    <p class="steps-h">Where the bioreactor sits in manufacturing</p>
+    <ol class="steps" id="steps">
+      <li><em>Day −21 to 0</em><b>Seed train</b><span>A vial of cells is expanded through flasks and smaller reactors.</span></li>
+      <li class="on" data-step="run"><em>Day 0 to 14</em><b>Production bioreactor</b><span>Cells grow and secrete antibody. Shown above.</span></li>
+      <li data-step="harvest"><em>Day 14</em><b>Harvest</b><span>Centrifuge and depth filters remove cells.</span></li>
+      <li><em>Downstream</em><b>Protein A capture</b><span>Antibody binds the resin by its Fc region; the rest washes away.</span></li>
+      <li><em>Downstream</em><b>Polishing</b><span>Ion exchange, viral inactivation and filtration.</span></li>
+      <li><em>Final</em><b>Fill</b><span>Formulated drug substance goes into vials.</span></li>
+    </ol>
+  </section>
+
+  <p class="foot">Values follow a typical modern fed-batch run (temperature shift on day 5, bolus feeds on days 3, 5, 7, 9 and 11). They are illustrative, not data from a specific process. Cell and antibody counts in the drawing are scaled down; a real 2,000 L tank holds around 30 quadrillion cells at peak.</p>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  // ---------- Process model (precomputed) ----------
+  const DAYS = 14, DT = 0.01, N = Math.round(DAYS / DT) + 1;
+  const FEEDS = [3, 5, 7, 9, 11];
+  const SHIFT = 5;
+  const sim = { X: new Float32Array(N), V: new Float32Array(N), T: new Float32Array(N), G: new Float32Array(N), temp: new Float32Array(N), pH: new Float32Array(N) };
+  {
+    let X = 0.5, titer = 0, G = 6;
+    for (let i = 0; i < N; i++) {
+      const t = i * DT;
+      const V = t < 9 ? 98 : 98 - 1.55 * Math.pow(t - 9, 1.5);
+      const temp = t < SHIFT ? 36.5 : t < SHIFT + 0.3 ? 36.5 - 3.5 * (t - SHIFT) / 0.3 : 33.0;
+      sim.X[i] = X; sim.V[i] = V; sim.T[i] = titer; sim.G[i] = G; sim.temp[i] = temp;
+      sim.pH[i] = 7.05 - 0.16 * Math.exp(-(((t - 5.5) / 2.6) ** 2));
+      const mu = t < SHIFT ? 0.62 : 0.26;
+      const kd = t < 9 ? 0 : 0.05 * (t - 9);
+      X += (mu * X * (1 - X / 24) - kd * X) * DT;
+      const qp = t < SHIFT ? 18 : 32; // pg/cell/day
+      titer += qp * X / 1000 * DT;     // g/L
+      G -= 0.15 * X * DT;
+      if (FEEDS.some(f => Math.abs(t - f) < DT / 2)) G += 2.5;
+      G = Math.max(G, 0.4);
+    }
+  }
+  const XMAX = Math.max(...sim.X), TMAX = sim.T[N - 1];
+  const at = (arr, t) => {
+    const f = Math.min(Math.max(t, 0), DAYS) / DT, i = Math.floor(f), j = Math.min(i + 1, N - 1);
+    return arr[i] + (arr[j] - arr[i]) * (f - i);
+  };
+  const feedsDone = t => FEEDS.filter(f => t >= f).length;
+  const volume = t => 1700 + 60 * feedsDone(t);
+  const rpmAt = t => 110 + 40 * (at(sim.X, t) / XMAX);
+  const qpAt = t => (t < SHIFT ? 18 : 32);
+
+  const PHASES = [
+    [0, 1, "Inoculation", "Cells engineered with the antibody's heavy- and light-chain genes are seeded at 0.5 million cells per mL of warm, pink medium."],
+    [1, 5, "Exponential growth", "At 36.5 °C the cells double about once a day. The impeller keeps them suspended and the sparger bubbles in oxygen."],
+    [5, 6, "Temperature shift", "The jacket cools the broth to 33 °C. Growth slows and each cell puts more of its effort into making antibody."],
+    [6, 10, "Production", "Cell density plateaus while antibody piles up in the medium. Concentrated feeds replace the glucose and amino acids the cells use."],
+    [10, 13.9, "Late production", "Viability starts to fall as the culture ages. Titer keeps climbing, though more slowly."],
+    [13.9, 99, "Harvest", "The run ends. The broth goes to centrifuges and filters to remove cells, then on to Protein A purification."]
+  ];
+
+  // ---------- State ----------
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let t = 0, playing = !reduce, speed = 1;
+  const DAY_SECONDS = 3.2; // real seconds per culture day at 1×
+  if (reduce) t = 8;
+
+  // ---------- Theme tokens ----------
+  let C = {};
+  function readTokens() {
+    const cs = getComputedStyle(document.documentElement);
+    const g = n => cs.getPropertyValue(n).trim();
+    C = {
+      ink: g("--ink"), muted: g("--muted"), line: g("--line"), steel: g("--steel"), glass: g("--glass"),
+      surface: g("--surface"), bg: g("--bg"), accent: g("--accent"), accent2: g("--accent-2"),
+      cell: g("--cell"), cellEdge: g("--cell-edge"), dead: g("--dead"), mrna: g("--mrna"), glycan: g("--glycan"),
+      warm: g("--warm"), cool: g("--cool"), bubble: g("--bubble"), dim: parseFloat(g("--medium-dim")) || 1
+    };
+  }
+  readTokens();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readTokens);
+  new MutationObserver(readTokens).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  const hex = h => { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(c => c + c).join(""); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(",")})`; };
+
+  // Phenol red indicator: pink-red near pH 7.2, salmon at 7.0, orange as it acidifies.
+  function mediumColor(pH, alpha) {
+    const stops = [[6.8, [238, 160, 88]], [7.0, [236, 124, 100]], [7.2, [226, 92, 120]]];
+    let c = stops[0][1];
+    for (let i = 0; i < stops.length - 1; i++) {
+      const [p0, c0] = stops[i], [p1, c1] = stops[i + 1];
+      if (pH >= p0 && pH <= p1) { const k = (pH - p0) / (p1 - p0); c = c0.map((v, j) => v + (c1[j] - v) * k); }
+    }
+    if (pH > 7.2) c = stops[2][1];
+    const d = C.dim;
+    return `rgba(${c.map(v => Math.round(v * d)).join(",")},${alpha})`;
+  }
+
+  // ---------- Canvas helpers ----------
+  function setup(canvas) {
+    const ctx = canvas.getContext("2d");
+    const o = { canvas, ctx, w: 0, h: 0, onResize: null };
+    const fit = () => {
+      const r = canvas.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
+      const ow = o.w, oh = o.h;
+      o.w = r.width; o.h = r.height;
+      canvas.width = Math.max(1, Math.round(r.width * d)); canvas.height = Math.max(1, Math.round(r.height * d));
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+      if (o.onResize && ow) o.onResize(ow, oh);
+    };
+    new ResizeObserver(fit).observe(canvas); fit();
+    return o;
+  }
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  // ---------- Reactor ----------
+  const R = setup(document.getElementById("reactor"));
+  let cells = [], abs = [], bubbles = [], theta = 0, clock = 0;
+
+  function geom() {
+    const { w, h } = R;
+    const x0 = w * 0.22, x1 = w * 0.78, top = h * 0.17, bot = h * 0.93, cx = (x0 + x1) / 2;
+    const W = x1 - x0, r = W * 0.2, dome = h * 0.05;
+    const fill = 0.75 + 0.06 * (volume(t) - 1700) / 300;
+    const liq = bot - (bot - top) * fill;
+    return { w, h, x0, x1, top, bot, cx, W, r, dome, liq, H: bot - liq };
+  }
+  R.onResize = (ow, oh) => {
+    const sx = R.w / ow, sy = R.h / oh;
+    for (const p of bubbles) { p.x *= sx; p.y *= sy; }
+  };
+  // Each particle rides one of two circulation loops (up the wall, down the shaft),
+  // drifting between inner and outer orbits so the tank stays well mixed.
+  const newOrbit = () => ({ side: Math.random() < 0.5 ? -1 : 1, rho: Math.sqrt(Math.random()) * 0.9 + 0.06, phi: Math.random() * 6.283, w: rnd(0.8, 1.2), j: Math.random() * 6.283 });
+  const nearOrbit = o => ({ side: o.side, rho: Math.min(0.96, Math.max(0.06, o.rho + rnd(-0.05, 0.05))), phi: o.phi + rnd(-0.12, 0.12), w: rnd(0.8, 1.2), j: Math.random() * 6.283 });
+  function orbitStep(o, sdt, omega) {
+    o.phi += (o.side < 0 ? 1 : -1) * omega * o.w * sdt / Math.max(0.35, o.rho);
+    o.rho = Math.min(0.96, Math.max(0.06, o.rho + rnd(-0.25, 0.25) * sdt));
+  }
+  function orbitXY(g, o) {
+    const half = (g.cx - g.x0) / 2, lcx = g.cx + o.side * half, lcy = g.liq + g.H / 2;
+    const ax = half - 9, ay = g.H / 2 - 9;
+    const wob = 3 * Math.sin(clock * 1.7 + o.j);
+    return [lcx + o.rho * ax * Math.cos(o.phi) + wob, lcy + o.rho * ay * Math.sin(o.phi) + wob * 0.6];
+  }
+
+  function vesselPath(ctx, g, grow = 0) {
+    const { x0, x1, top, bot, r, cx, dome } = g;
+    ctx.beginPath();
+    ctx.moveTo(x0 - grow, top);
+    ctx.lineTo(x0 - grow, bot - r);
+    ctx.quadraticCurveTo(x0 - grow, bot + grow, x0 + r, bot + grow);
+    ctx.lineTo(x1 - r, bot + grow);
+    ctx.quadraticCurveTo(x1 + grow, bot + grow, x1 + grow, bot - r);
+    ctx.lineTo(x1 + grow, top);
+    ctx.quadraticCurveTo(cx, top - dome * 2 - grow, x0 - grow, top);
+    ctx.closePath();
+  }
+
+  function syncPopulations(g, now) {
+    const X = at(sim.X, t), V = at(sim.V, t), titer = at(sim.T, t);
+    const maxCells = Math.round(Math.min(170, g.W * g.H / 900));
+    const target = Math.max(4, Math.round(X / XMAX * maxCells));
+    while (cells.length < target) {
+      const o = newOrbit();
+      cells.push({ o, x: 0, y: 0, born: now, ph: Math.random() * 6.28, dead: false, s: rnd(0.85, 1.15) });
+    }
+    while (cells.length > target) cells.pop();
+    const deadN = Math.round(cells.length * (1 - V / 100) * 1.8);
+    cells.forEach((c, i) => (c.dead = i < deadN));
+
+    const maxAbs = Math.round(Math.min(600, g.W * g.H / 220));
+    const abTarget = Math.round(titer / TMAX * maxAbs);
+    const live = cells.filter(c => !c.dead);
+    while (abs.length < abTarget) {
+      const p = live.length ? live[(Math.random() * live.length) | 0] : null;
+      abs.push({ o: p ? nearOrbit(p.o) : newOrbit(), x: 0, y: 0, a: Math.random() * 6.28, spin: rnd(-1.5, 1.5), born: now });
+    }
+    while (abs.length > abTarget) abs.pop();
+  }
+
+  function drawYPath(ctx, x, y, s, a) {
+    const c = Math.cos(a), sn = Math.sin(a);
+    const P = (px, py) => [x + px * c - py * sn, y + px * sn + py * c];
+    const [ax, ay] = P(0, s), [bx, by] = P(0, 0), [lx, ly] = P(-s * 0.75, -s * 0.9), [rx, ry] = P(s * 0.75, -s * 0.9);
+    ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(lx, ly);
+    ctx.moveTo(bx, by); ctx.lineTo(rx, ry);
+  }
+
+  function drawImpeller(ctx, g, y, R0, ang) {
+    const bh = Math.max(5, g.H * 0.035);
+    const blades = [];
+    for (let k = 0; k < 4; k++) { const a = ang + k * Math.PI / 2; blades.push({ x: Math.cos(a) * R0, z: Math.sin(a) }); }
+    blades.sort((a, b) => a.z - b.z);
+    for (const b of blades) {
+      ctx.fillStyle = b.z < 0 ? mix(C.steel.startsWith("#") ? C.steel : "#7f959d", C.ink.startsWith("#") ? C.ink : "#13232a", 0.15) : C.steel;
+      ctx.globalAlpha = b.z < 0 ? 0.55 : 1;
+      const skew = bh * 0.5 * b.z;
+      ctx.beginPath();
+      ctx.moveTo(g.cx, y - bh / 2); ctx.lineTo(g.cx + b.x, y - bh / 2 + skew);
+      ctx.lineTo(g.cx + b.x, y + bh / 2 + skew); ctx.lineTo(g.cx, y + bh / 2);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = C.ink;
+    ctx.fillRect(g.cx - 6, y - bh * 0.7, 12, bh * 1.4);
+  }
+
+  function label(ctx, text, x, y, align = "left") {
+    ctx.fillStyle = C.muted; ctx.textAlign = align; ctx.textBaseline = "middle";
+    ctx.fillText(text, x, y);
+  }
+
+  function drawReactor(now, dt) {
+    const ctx = R.ctx, g = geom();
+    const { w, h, x0, x1, top, bot, cx, W, H, liq } = g;
+    ctx.clearRect(0, 0, w, h);
+    const narrow = w < 430;
+    ctx.font = `500 ${narrow ? 10 : 11}px "IBM Plex Mono", ui-monospace, monospace`;
+
+    const pH = at(sim.pH, t), temp = at(sim.temp, t), rpm = rpmAt(t), X = at(sim.X, t);
+
+    // Jacket coloured by temperature
+    const cold = Math.min(Math.max((36.5 - temp) / 3.5, 0), 1);
+    const jacket = mix(C.warm, C.cool, cold);
+    vesselPath(ctx, g, 9);
+    ctx.fillStyle = jacket; ctx.globalAlpha = 0.28; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = jacket; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Glass / headspace
+    vesselPath(ctx, g); ctx.fillStyle = C.glass; ctx.fill();
+
+    ctx.save(); vesselPath(ctx, g); ctx.clip();
+    // Medium with a gentle surface wave
+    ctx.beginPath();
+    ctx.moveTo(x0 - 10, bot + 20);
+    for (let x = x0 - 10; x <= x1 + 10; x += 6) ctx.lineTo(x, liq + Math.sin(x * 0.045 + clock * 3) * 2 * (rpm / 130));
+    ctx.lineTo(x1 + 10, bot + 20); ctx.closePath();
+    const grad = ctx.createLinearGradient(0, liq, 0, bot);
+    grad.addColorStop(0, mediumColor(pH, 0.62)); grad.addColorStop(1, mediumColor(pH - 0.05, 0.82));
+    ctx.fillStyle = grad; ctx.fill();
+
+    // Baffles
+    ctx.fillStyle = C.steel; ctx.globalAlpha = 0.5;
+    ctx.fillRect(x0 + 6, liq - 6, 5, H - g.r * 0.6);
+    ctx.fillRect(x1 - 11, liq - 6, 5, H - g.r * 0.6);
+    ctx.globalAlpha = 1;
+
+    // Feed plume
+    const feed = FEEDS.find(f => t >= f && t < f + 0.4);
+    const fx = x0 + W * 0.24;
+    if (feed !== undefined) {
+      const k = (t - feed) / 0.4;
+      const rad = 10 + k * W * 0.35;
+      const fg = ctx.createRadialGradient(fx, liq + 8, 2, fx, liq + 8, rad);
+      fg.addColorStop(0, `rgba(250,236,170,${0.55 * (1 - k)})`); fg.addColorStop(1, "rgba(250,236,170,0)");
+      ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(fx, liq + 8, rad, 0, 6.29); ctx.fill();
+    }
+
+    // Particle updates
+    const sdt = playing ? dt * speed : 0;
+    syncPopulations(g, now);
+    const omega = 0.55 * (rpm / 130);
+    for (const c of cells) { if (sdt) orbitStep(c.o, sdt, omega * (c.dead ? 0.8 : 1)); [c.x, c.y] = orbitXY(g, c.o); }
+    for (const a of abs) { if (sdt) { orbitStep(a.o, sdt, omega * 1.1); a.a += a.spin * sdt; } [a.x, a.y] = orbitXY(g, a.o); }
+
+    // Cells
+    const cr = Math.max(4.5, Math.min(9, W * 0.016));
+    for (const c of cells) {
+      const age = (now - c.born) / 600;
+      const grow = Math.min(1, 0.55 + age * 0.45);
+      const rr = cr * c.s * grow * (c.dead ? 0.72 : 1) * (1 + Math.sin(clock * 2 + c.ph) * 0.03);
+      ctx.beginPath();
+      if (c.dead) {
+        for (let k = 0; k <= 7; k++) { const a = k / 7 * 6.283, q = rr * (0.75 + 0.25 * Math.sin(k * 2.3 + c.ph)); k ? ctx.lineTo(c.x + Math.cos(a) * q, c.y + Math.sin(a) * q) : ctx.moveTo(c.x + Math.cos(a) * q, c.y + Math.sin(a) * q); }
+        ctx.closePath(); ctx.fillStyle = C.dead; ctx.globalAlpha = 0.75; ctx.fill(); ctx.globalAlpha = 1;
+      } else {
+        ctx.arc(c.x, c.y, rr, 0, 6.283);
+        ctx.fillStyle = C.cell; ctx.fill();
+        ctx.strokeStyle = C.cellEdge; ctx.lineWidth = 1; ctx.stroke();
+        ctx.beginPath(); ctx.arc(c.x + rr * 0.15, c.y - rr * 0.1, rr * 0.42, 0, 6.283);
+        ctx.fillStyle = C.cellEdge; ctx.globalAlpha = 0.45; ctx.fill(); ctx.globalAlpha = 1;
+      }
+    }
+
+    // Antibodies
+    const ys = Math.max(3.2, Math.min(5.5, W * 0.0095));
+    ctx.strokeStyle = C.accent; ctx.lineWidth = Math.max(1.4, ys * 0.38); ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath();
+    for (const a of abs) if (now - a.born > 400) drawYPath(ctx, a.x, a.y, ys, a.a);
+    ctx.stroke();
+    ctx.globalAlpha = 0.5; ctx.beginPath();
+    for (const a of abs) if (now - a.born <= 400) drawYPath(ctx, a.x, a.y, ys, a.a);
+    ctx.stroke(); ctx.globalAlpha = 1;
+
+    // Bubbles from the sparger ring
+    const spY = bot - H * 0.06, ringR = W * 0.16;
+    if (sdt && t < DAYS) {
+      const rate = 55 * (0.6 + 0.6 * X / XMAX) * Math.min(speed, 1.5);
+      let n = rate * dt; while (n > 0) { if (Math.random() < n) bubbles.push({ x: cx + rnd(-ringR, ringR), y: spY, r: rnd(1.2, 3.4), w: Math.random() * 6 }); n -= 1; }
+    }
+    ctx.strokeStyle = C.bubble; ctx.lineWidth = 1;
+    bubbles = bubbles.filter(b => {
+      if (sdt) {
+        b.y -= (55 + b.r * 18) * (h / 600) * sdt; b.x += Math.sin(clock * 6 + b.w) * 10 * sdt;
+      }
+      if (b.y < liq + 2) return false;
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 6.283); ctx.stroke();
+      return true;
+    });
+    ctx.restore();
+
+    // Vessel outline
+    vesselPath(ctx, g); ctx.strokeStyle = C.steel; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Sparger ring
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(cx, spY, ringR, 3, 0, 0, 6.283); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1 + 9, spY + 8); ctx.lineTo(x1 - g.r * 0.4, spY + 8); ctx.lineTo(cx + ringR, spY); ctx.stroke();
+
+    // Shaft, motor and impellers
+    theta += (rpm / 60) * 2 * Math.PI * 0.35 * sdt;
+    const motorY = top - g.dome * 2 - 26;
+    ctx.fillStyle = C.ink; ctx.fillRect(cx - 18, motorY, 36, 22);
+    ctx.fillStyle = C.steel; ctx.fillRect(cx - 3, motorY + 22, 6, bot - H * 0.14 - motorY - 22);
+    drawImpeller(ctx, g, liq + H * 0.42, W * 0.2, theta);
+    drawImpeller(ctx, g, bot - H * 0.16, W * 0.2, theta + 0.7);
+
+    // Feed and off-gas lines
+    ctx.strokeStyle = C.steel; ctx.lineWidth = 3;
+    const domeY = x => { const k = (x - x0) / W; return top - g.dome * 4 * k * (1 - k); };
+    ctx.beginPath(); ctx.moveTo(fx, motorY - 6); ctx.lineTo(fx, domeY(fx) + 6); ctx.stroke();
+    const ex = x1 - W * 0.22;
+    ctx.beginPath(); ctx.moveTo(ex, domeY(ex)); ctx.lineTo(ex, motorY + 4); ctx.lineTo(ex + 22, motorY + 4); ctx.stroke();
+    ctx.fillStyle = C.surface; ctx.strokeStyle = C.steel; ctx.lineWidth = 1.5;
+    ctx.fillRect(ex + 22, motorY - 4, 14, 16); ctx.strokeRect(ex + 22, motorY - 4, 14, 16);
+    if (feed !== undefined) {
+      ctx.strokeStyle = "rgba(240,214,120,0.9)"; ctx.lineWidth = 2; ctx.setLineDash([4, 4]); ctx.lineDashOffset = -clock * 40;
+      ctx.beginPath(); ctx.moveTo(fx, domeY(fx) + 6); ctx.lineTo(fx, liq); ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    // Probes from the left wall
+    const probes = [["pH", pH.toFixed(2), 0.18], ["DO", (40 + Math.sin(clock * 0.9) * 1.5).toFixed(0) + "%", 0.34], ["T", temp.toFixed(1) + "°", 0.5]];
+    for (const [n, v, k] of probes) {
+      const py = liq + H * k;
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 3; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(x0 - 16, py - 6); ctx.lineTo(x0 + W * 0.1, py + 4); ctx.stroke();
+      label(ctx, narrow ? n : `${n} ${v}`, x0 - 20, py - 7, "right");
+    }
+
+    // Labels on the right
+    const lx = x1 + 16;
+    label(ctx, "Jacket", lx, liq + H * 0.12);
+    ctx.fillStyle = jacket; ctx.fillText(temp.toFixed(1) + " °C", lx, liq + H * 0.12 + 14);
+    label(ctx, "Impeller", lx, liq + H * 0.42);
+    label(ctx, "Sparger", lx, spY + 8);
+    label(ctx, "Feed", fx, motorY - 14, "center");
+    label(ctx, "Off-gas", ex + 29, motorY - 14, "center");
+    label(ctx, `${Math.round(rpm)} rpm`, cx, motorY - 14, "center");
+
+    // Harvest overlay
+    if (t >= DAYS - 0.001) {
+      ctx.fillStyle = C.surface; ctx.globalAlpha = 0.86;
+      const bw = Math.min(W * 0.95, 260), bh = 58;
+      ctx.fillRect(cx - bw / 2, liq + H * 0.22 - bh / 2, bw, bh); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.strokeRect(cx - bw / 2, liq + H * 0.22 - bh / 2, bw, bh);
+      ctx.fillStyle = C.ink; ctx.textAlign = "center";
+      ctx.font = `700 16px "Archivo", Arial, sans-serif`; ctx.fillText("Harvest · day 14", cx, liq + H * 0.22 - 8);
+      ctx.font = `500 11px "IBM Plex Mono", monospace`; ctx.fillStyle = C.muted;
+      ctx.fillText(`${(at(sim.T, t) * volume(t) / 1000).toFixed(1)} kg antibody in ${volume(t).toLocaleString()} L`, cx, liq + H * 0.22 + 12);
+    }
+  }
+
+  // ---------- Cell close-up ----------
+  const S = setup(document.getElementById("cell"));
+  let parts = [], spawnAcc = 0;
+
+  function cellGeom() {
+    const { w, h } = S;
+    const cx = w * 0.45, cy = h * 0.53, rx = w * 0.4, ry = h * 0.42;
+    const nx = cx - rx * 0.55, ny = cy + h * 0.02, nr = Math.min(h * 0.2, w * 0.12);
+    const gx = cx + rx * 0.32, gy = cy - h * 0.02;
+    const ma = -0.32, mx = cx + rx * Math.cos(ma), my = cy + ry * Math.sin(ma);
+    const wps = [
+      [nx - nr * 0.35, ny + nr * 0.15], [nx + nr * 0.95, ny - nr * 0.2], [nx + nr + 12, ny - nr * 0.75],
+      [nx + nr + 24, ny + nr * 0.35], [gx - 12, gy + 10], [gx + 12, gy - 8], [mx, my], [w - 8, my - h * 0.22]
+    ];
+    const seg = []; let L = 0;
+    for (let i = 0; i < wps.length - 1; i++) { const d = Math.hypot(wps[i + 1][0] - wps[i][0], wps[i + 1][1] - wps[i][1]); seg.push([L, d]); L += d; }
+    return { w, h, cx, cy, rx, ry, nx, ny, nr, gx, gy, wps, seg, L };
+  }
+  function pathPos(cg, p) {
+    const d = p * cg.L;
+    for (let i = 0; i < cg.seg.length; i++) {
+      const [s0, len] = cg.seg[i];
+      if (d <= s0 + len || i === cg.seg.length - 1) {
+        const k = Math.min(1, (d - s0) / len), a = cg.wps[i], b = cg.wps[i + 1];
+        return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, i, Math.atan2(b[1] - a[1], b[0] - a[0])];
+      }
+    }
+  }
+
+  function drawCell(now, dt) {
+    const ctx = S.ctx, cg = cellGeom(), { w, h } = cg;
+    ctx.clearRect(0, 0, w, h);
+    const pH = at(sim.pH, t);
+    ctx.fillStyle = mediumColor(pH, 0.35); ctx.fillRect(0, 0, w, h);
+
+    // Membrane and cytoplasm
+    ctx.beginPath(); ctx.ellipse(cg.cx, cg.cy, cg.rx, cg.ry, 0, 0, 6.283);
+    ctx.fillStyle = C.cell; ctx.fill(); ctx.strokeStyle = C.cellEdge; ctx.lineWidth = 2; ctx.stroke();
+
+    // ER wrapping the nucleus, with ribosomes
+    ctx.strokeStyle = C.accent2; ctx.lineWidth = 3; ctx.globalAlpha = 0.55;
+    for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(cg.nx, cg.ny, cg.nr + 9 + k * 8, -1.15, 1.15); ctx.stroke(); }
+    ctx.globalAlpha = 1; ctx.fillStyle = C.ink;
+    for (let k = 0; k < 3; k++) for (let j = 0; j < 9; j++) {
+      const a = -1.1 + j * 0.275 + k * 0.1, rr = cg.nr + 9 + k * 8 + 3;
+      ctx.beginPath(); ctx.arc(cg.nx + Math.cos(a) * rr, cg.ny + Math.sin(a) * rr, 1.3, 0, 6.283); ctx.fill();
+    }
+
+    // Nucleus with the antibody genes
+    ctx.beginPath(); ctx.arc(cg.nx, cg.ny, cg.nr, 0, 6.283);
+    ctx.fillStyle = C.glass; ctx.fill(); ctx.strokeStyle = C.cellEdge; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.lineWidth = 1.5;
+    for (let s = 0; s < 2; s++) {
+      ctx.strokeStyle = s ? C.accent : C.accent2; ctx.beginPath();
+      for (let i = 0; i <= 30; i++) {
+        const x = cg.nx - cg.nr * 0.7 + i / 30 * cg.nr * 1.4, y = cg.ny + Math.sin(i / 30 * 9.4 + clock * 0.8 + s * Math.PI) * cg.nr * 0.16;
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // Golgi stack
+    ctx.strokeStyle = C.glycan; ctx.lineWidth = 3; ctx.lineCap = "round";
+    for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(cg.gx + 34, cg.gy, 26 + k * 6, Math.PI - 0.55, Math.PI + 0.55); ctx.stroke(); }
+
+    // Particles
+    const sdt = playing && t < DAYS ? dt * speed : 0;
+    spawnAcc += sdt * 1.5 * (qpAt(t) / 32) * (at(sim.V, t) / 98);
+    while (spawnAcc > 1) { spawnAcc -= 1; parts.push({ p: 0, o: rnd(-5, 5), v: rnd(0.11, 0.15) }); }
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    parts = parts.filter(q => {
+      q.p += q.v * sdt;
+      if (q.p >= 1) return false;
+      const [x0, y0, seg, ang] = pathPos(cg, q.p);
+      const x = x0 - Math.sin(ang) * q.o, y = y0 + Math.cos(ang) * q.o;
+      if (seg <= 1) {
+        ctx.strokeStyle = C.mrna; ctx.lineWidth = 1.6; ctx.beginPath();
+        for (let i = 0; i <= 10; i++) { const u = (i / 10 - 0.5) * 14; const px = x + Math.cos(ang) * u - Math.sin(ang) * Math.sin(i * 1.4 + clock * 6) * 2; const py = y + Math.sin(ang) * u + Math.cos(ang) * Math.sin(i * 1.4 + clock * 6) * 2; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+        ctx.stroke();
+      } else if (seg === 2) {
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = C.accent; ctx.beginPath(); ctx.moveTo(x - 6, y - 2); ctx.lineTo(x + 6, y - 2); ctx.stroke();
+        ctx.strokeStyle = C.accent2; ctx.beginPath(); ctx.moveTo(x - 3, y + 2.5); ctx.lineTo(x + 3, y + 2.5); ctx.stroke();
+      } else {
+        const fade = seg === 6 ? 1 - (q.p * cg.L - cg.seg[6][0]) / cg.seg[6][1] : 1;
+        ctx.globalAlpha = Math.max(0, fade);
+        if (seg === 5) { ctx.strokeStyle = C.cellEdge; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, 8.5, 0, 6.283); ctx.stroke(); }
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2.2; ctx.beginPath(); drawYPath(ctx, x, y + 1, 5.5, 0); ctx.stroke();
+        if (seg >= 4) { ctx.fillStyle = C.glycan; ctx.beginPath(); ctx.arc(x - 2, y + 5, 1.6, 0, 6.283); ctx.arc(x + 2, y + 5, 1.6, 0, 6.283); ctx.fill(); }
+        ctx.globalAlpha = 1;
+      }
+      return true;
+    });
+
+    // Labels
+    ctx.font = `500 10.5px "IBM Plex Mono", ui-monospace, monospace`;
+    label(ctx, "Nucleus · genes", cg.nx - 24, cg.ny + cg.nr + 16, "center");
+    label(ctx, "ER · chains made", cg.nx + cg.nr - 6, cg.ny - cg.nr - 22);
+    label(ctx, "Golgi · glycans", cg.gx - 10, cg.gy + 46);
+    label(ctx, "Secreted", w - 8, 14, "right");
+    label(ctx, `${qpAt(t)} pg/cell/day`, w - 8, h - 12, "right");
+  }
+
+  // ---------- Run chart ----------
+  const K = setup(document.getElementById("chart"));
+  function drawChart() {
+    const ctx = K.ctx, { w, h } = K;
+    ctx.clearRect(0, 0, w, h);
+    const pl = 30, pr = 30, pt = 10, pb = 22;
+    const iw = w - pl - pr, ih = h - pt - pb;
+    const xMaxV = 20, yMaxT = Math.ceil(TMAX);
+    const X = d => pl + d / DAYS * iw, YV = v => pt + ih - v / xMaxV * ih, YT = v => pt + ih - v / yMaxT * ih;
+    ctx.font = `400 10px "IBM Plex Mono", ui-monospace, monospace`;
+    ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+    for (let v = 0; v <= xMaxV; v += 5) {
+      ctx.beginPath(); ctx.moveTo(pl, YV(v)); ctx.lineTo(w - pr, YV(v)); ctx.stroke();
+      ctx.fillStyle = C.muted; ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillText(v, pl - 6, YV(v));
+      ctx.textAlign = "left"; ctx.fillText((v / xMaxV * yMaxT).toFixed(v ? 1 : 0), w - pr + 6, YV(v));
+    }
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (let d = 0; d <= DAYS; d += 2) ctx.fillText(d, X(d), pt + ih + 6);
+
+    // Temperature shift marker
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = C.muted;
+    ctx.beginPath(); ctx.moveTo(X(SHIFT), pt); ctx.lineTo(X(SHIFT), pt + ih); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = C.muted; ctx.textAlign = "left"; ctx.fillText("33 °C", X(SHIFT) + 4, pt + 2);
+
+    // Feeds
+    ctx.fillStyle = C.glycan;
+    for (const f of FEEDS) { ctx.beginPath(); ctx.moveTo(X(f), pt + ih - 7); ctx.lineTo(X(f) - 4, pt + ih); ctx.lineTo(X(f) + 4, pt + ih); ctx.fill(); }
+
+    const curve = (arr, Y, col, upto, alpha, lw) => {
+      ctx.strokeStyle = col; ctx.globalAlpha = alpha; ctx.lineWidth = lw; ctx.beginPath();
+      const end = Math.round(upto / DT);
+      for (let i = 0; i <= end; i += 5) { const xx = X(i * DT), yy = Y(arr[i]); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+      ctx.lineTo(X(upto), Y(at(arr, upto)));
+      ctx.stroke(); ctx.globalAlpha = 1;
+    };
+    curve(sim.X, YV, C.cellEdge, DAYS, 0.2, 1.5);
+    curve(sim.T, YT, C.accent, DAYS, 0.2, 1.5);
+    if (t > 0) { curve(sim.X, YV, C.cellEdge, t, 1, 2.2); curve(sim.T, YT, C.accent, t, 1, 2.4); }
+    // Now line and endpoints
+    ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.moveTo(X(t), pt); ctx.lineTo(X(t), pt + ih); ctx.stroke(); ctx.globalAlpha = 1;
+    for (const [v, col] of [[YV(at(sim.X, t)), C.cellEdge], [YT(at(sim.T, t)), C.accent]]) {
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(X(t), v, 3.5, 0, 6.283); ctx.fill();
+    }
+  }
+
+  // ---------- Readouts ----------
+  const $ = id => document.getElementById(id);
+  const setRO = (id, v, unit) => { $(id).innerHTML = unit ? `${v}<i>${unit}</i>` : v; };
+  let lastPhase = "", lastRO = 0;
+  function updateText(now) {
+    if (now - lastRO > 80) {
+      lastRO = now;
+      const titer = at(sim.T, t);
+      setRO("r-titer", titer.toFixed(2), "g/L");
+      setRO("r-vcd", at(sim.X, t).toFixed(1), "×10⁶/mL");
+      setRO("r-via", at(sim.V, t).toFixed(0), "%");
+      setRO("r-temp", at(sim.temp, t).toFixed(1), "°C");
+      setRO("r-ph", at(sim.pH, t).toFixed(2));
+      setRO("r-do", (40 + Math.sin(clock * 0.9) * 1.5).toFixed(0), "%");
+      setRO("r-glc", at(sim.G, t).toFixed(1), "g/L");
+      setRO("r-rpm", Math.round(rpmAt(t)), "rpm");
+      setRO("r-vol", volume(t).toLocaleString("en-US"), "L");
+      $("r-mass").textContent = `${(titer * volume(t) / 1000).toFixed(1)} kg`;
+      $("dayLabel").textContent = `DAY ${t.toFixed(1)} / 14`;
+    }
+    const ph = PHASES.find(p => t >= p[0] && t < p[1]) || PHASES[PHASES.length - 1];
+    if (ph[2] !== lastPhase) {
+      lastPhase = ph[2]; $("phase").textContent = ph[2]; $("phaseText").textContent = ph[3];
+      const harvest = ph[2] === "Harvest";
+      document.querySelectorAll("#steps li[data-step]").forEach(li => li.classList.toggle("on", (li.dataset.step === "harvest") === harvest));
+    }
+    $("feedBadge").hidden = !FEEDS.some(f => t >= f && t < f + 0.4);
+  }
+
+  // ---------- Controls ----------
+  const playBtn = $("play"), slider = $("day");
+  const syncPlay = () => { playBtn.textContent = playing ? "Pause" : t >= DAYS ? "Replay" : "Play"; };
+  playBtn.addEventListener("click", () => {
+    if (t >= DAYS) { t = 0; cells = []; abs = []; }
+    playing = !playing; syncPlay();
+  });
+  $("restart").addEventListener("click", () => { t = 0; cells = []; abs = []; bubbles = []; parts = []; playing = true; syncPlay(); });
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+    speed = parseFloat(b.dataset.speed);
+    document.querySelectorAll(".seg button").forEach(o => o.setAttribute("aria-pressed", String(o === b)));
+  }));
+  slider.addEventListener("input", () => { t = parseFloat(slider.value); syncPlay(); });
+  syncPlay();
+
+  // ---------- Loop ----------
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (playing) {
+      clock += dt * speed;
+      t = Math.min(DAYS, t + dt * speed / DAY_SECONDS);
+      if (t >= DAYS) { playing = false; syncPlay(); }
+      slider.value = t.toFixed(2);
+    } else slider.value = t.toFixed(2);
+    drawReactor(now, dt);
+    drawCell(now, dt);
+    drawChart();
+    updateText(now);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
