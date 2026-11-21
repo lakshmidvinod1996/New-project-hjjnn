@@ -1,0 +1,707 @@
+<title>Myth or Med: Generics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800;900&family=Caveat:wght@700&display=swap">
+<style>
+/* Layout: a phone-shaped stage on the left, the shooting script beside it, caption copy underneath. */
+:root {
+  --bg: #f4ede6;
+  --surface: #fffaf5;
+  --ink: #33262f;
+  --muted: #76656d;
+  --line: #e4d6cb;
+  --accent: #c9574f;
+  --accent-2: #4f9a5c;
+  --chip: #efe3d8;
+  --font-display: "Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1c1619; --surface: #261e22; --ink: #f3e8e1; --muted: #b29fa6; --line: #3b2f34;
+    --accent: #ee8076; --accent-2: #7cc98a; --chip: #33282d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1c1619; --surface: #261e22; --ink: #f3e8e1; --muted: #b29fa6; --line: #3b2f34;
+  --accent: #ee8076; --accent-2: #7cc98a; --chip: #33282d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 44px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+header { display: flex; flex-direction: column; gap: 2px; }
+.eyebrow { margin: 0; font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4.6vw, 42px); line-height: 1.08; text-wrap: balance; }
+.sub { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.player { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.phone { width: 100%; max-width: min(420px, calc((100vh - 140px) * 9 / 16)); min-width: 240px; margin: 0 auto; border-radius: 22px; overflow: hidden; background: #2a2026; box-shadow: 0 14px 40px rgba(60, 30, 30, 0.18); }
+@media (max-width: 820px) { .phone { max-width: 420px; } }
+#reel { display: block; width: 100%; aspect-ratio: 9 / 16; max-width: 100%; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: 420px; width: 100%; margin: 0 auto; }
+button { font: 800 14px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button:focus-visible, input:focus-visible, li:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#play { background: var(--accent); border-color: var(--accent); color: #fff; min-width: 84px; }
+.scrub { display: flex; align-items: center; gap: 8px; flex: 1 1 100%; }
+#time { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 13px; color: var(--muted); min-width: 78px; text-align: right; }
+#seek { flex: 1; min-width: 0; accent-color: var(--accent); }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.toggle input { accent-color: var(--accent); }
+.note { max-width: 420px; margin: 0 auto; font-size: 12.5px; color: var(--muted); }
+
+.script { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.script h2, .caption h2 { font-family: var(--font-display); font-weight: 800; font-size: 20px; margin: 0; }
+.scenes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.scenes li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 2px 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); cursor: pointer; }
+.scenes li.on { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent); }
+.when { grid-row: span 2; font-weight: 800; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.35; }
+.when b { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.ost { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 16px; line-height: 1.25; }
+.vo { margin: 0; color: var(--muted); font-size: 14px; min-width: 0; }
+
+.caption { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 16px; background: var(--chip); }
+.caption pre { margin: 0; white-space: pre-wrap; font: 400 14.5px/1.55 var(--font-body); color: var(--ink); max-width: 70ch; }
+.caption-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+#copyMsg { font-size: 12px; color: var(--accent-2); font-weight: 800; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Myth or Med? · Episode 1 · 9:16 · 60 seconds</p>
+    <h1>Are generic medicines weaker?</h1>
+    <p class="sub">The Brainy Muse busts the generics myth in needle-felt stop-motion. The animation plays your script scene by scene at 12 frames per second, with the on-screen text and captions built in.</p>
+  </header>
+
+  <div class="grid">
+    <section class="player" aria-label="Reel player">
+      <div class="phone">
+        <canvas id="reel" width="1080" height="1920" role="img" aria-label="Animated reel: a felt scientist debunks the myth that generic medicines are weaker than brand names."></canvas>
+      </div>
+      <div class="controls">
+        <button id="play" type="button">Play</button>
+        <button id="restart" type="button">Restart</button>
+        <label class="toggle" id="voiceWrap"><input id="voice" type="checkbox"> Scratch voice</label>
+        <div class="scrub">
+          <input id="seek" type="range" min="0" max="60" step="0.0833" value="0" aria-label="Position in reel">
+          <span id="time">0:00 / 1:00</span>
+        </div>
+      </div>
+      <p class="note">Scratch voice reads the voiceover with your browser's built-in voice so you can check timing. Replace it with your real voiceover in the final edit.</p>
+    </section>
+
+    <section class="script" aria-label="Shooting script">
+      <h2>Script</h2>
+      <ol class="scenes" id="scenes"></ol>
+    </section>
+  </div>
+
+  <section class="caption" aria-label="Post caption">
+    <div class="caption-head">
+      <h2>Caption</h2>
+      <span><span id="copyMsg" hidden>Copied</span> <button id="copy" type="button">Copy caption</button></span>
+    </div>
+<pre id="captionText">Is the cheap medicine secretly worse than the branded one? Generics have the same active ingredient, the same strength, and have to prove they reach your blood the same way before they're approved.
+
+I'm a scientist, not your doctor. This is general info, so check with your pharmacist or GP about your own meds.
+
+#MythOrMed #GenericMedicines #MedicineMyths #Pharmacy #ScienceExplained</pre>
+  </section>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const W = 1080, H = 1920, FPS = 12, DUR = 60, TAU = Math.PI * 2;
+  const SCENES = [
+    { start: 0, end: 3, label: "Hook", text: "Is the cheap one worse?", vo: "Is the cheap medicine secretly worse than the branded one?" },
+    { start: 3, end: 10, label: "Myth", text: "MYTH: Generics are weaker", vo: "Loads of people think generics are knock-offs. Cheaper, so weaker." },
+    { start: 10, end: 25, label: "Truth", text: "Same active ingredient. Same strength.", vo: "A generic has the same active ingredient, same strength, and works the same way. What changes is the stuff around it: the colour, the shape, the filler." },
+    { start: 25, end: 40, label: "Truth", text: "Bioequivalence = same speed, same amount", vo: "Before a generic is approved in Europe, it has to prove it gets into your blood at the same rate and the same amount as the original. That's called bioequivalence." },
+    { start: 40, end: 52, label: "Proof", text: "2,070 studies. Average difference: about 3.5%", vo: "When the US regulator reviewed over two thousand of these studies, the average difference from the brand was only about three and a half percent." },
+    { start: 52, end: 57, label: "Takeaway", text: "Same medicine. Smaller price.", vo: "So: same medicine, smaller price. With the brand, you're mostly paying for the name." },
+    { start: 57, end: 60, label: "Call to action", text: "Which myth next? Comment below", vo: "Which medicine myth should I bust next? Comment below." }
+  ];
+  // Word timing: words spread across the scene, weighted by length.
+  for (const s of SCENES) {
+    s.words = s.vo.split(" ");
+    const win = Math.min(s.end - s.start - 0.3, s.words.length / 2.5);
+    s.vStart = s.start + 0.15; s.vEnd = s.vStart + win;
+    const wts = s.words.map(w => w.length + 3), tot = wts.reduce((a, b) => a + b, 0);
+    let acc = 0; s.wt = wts.map(w => { const v = s.vStart + acc / tot * win; acc += w; return v; });
+    s.chunks = []; let cur = [];
+    s.words.forEach((w, i) => { cur.push(i); if (cur.length >= 6 || /[.?:!]$/.test(w) || (cur.length >= 4 && /,$/.test(w))) { s.chunks.push(cur); cur = []; } });
+    if (cur.length) s.chunks.push(cur);
+  }
+
+  const C = {
+    hair: "#3b2924", scrunch: "#ef8fa6", skin: "#f3c9a8", skin2: "#e8b793", nose: "#e9a98a", cheek: "#f39c9c",
+    coat: "#fbf8f2", lapel: "#e9e4da", shirt: "#86c3b8", pen: "#5b86c5", button: "#c9c1b5",
+    frame: "#5f8db6", lens: "#d8edf8", mouth: "#7c2f3a", tongue: "#ee8a92", eyeW: "#ffffff", pupil: "#2c211f",
+    brand: "#b9a0e3", gold: "#ebc66b", generic: "#ebe5d8", genBand: "#a7cbe2", genPill: "#9ccbe8",
+    red: "#d65a50", green: "#5aa866", core: "#ffd25e", shellA: "#f3a9ba", shellB: "#9ccbe8",
+    vessel: "#df7d74", lumen: "#f8c9bf", rbc: "#d5514d", glass: "#d9eef6",
+    board: "#30504a", wood: "#b07d52", chalk: "rgba(246,244,234,0.93)", tag: "#fff8ec", ink: "#3b2a36"
+  };
+  const FD = '"Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif';
+  const FB = '"Nunito", "Segoe UI", sans-serif';
+  const FC = '"Caveat", "Comic Sans MS", cursive';
+
+  // ---------- utilities ----------
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const eio = p => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eob = p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+  function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  let g, PAT, BOIL = 0, FRAME = 0;
+  function makePattern(c2) {
+    const c = document.createElement("canvas"); c.width = c.height = 220;
+    const x = c.getContext("2d"), r = rng(42);
+    for (let i = 0; i < 1700; i++) {
+      const px = r() * 220, py = r() * 220, a = r() * TAU, l = 3 + r() * 9;
+      x.strokeStyle = r() < 0.55 ? `rgba(255,255,255,${0.1 + r() * 0.14})` : `rgba(50,25,25,${0.05 + r() * 0.08})`;
+      x.lineWidth = 0.8 + r() * 0.9; x.beginPath(); x.moveTo(px, py);
+      x.quadraticCurveTo(px + Math.cos(a + 0.6) * l * 0.5, py + Math.sin(a + 0.6) * l * 0.5, px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke();
+    }
+    return c2.createPattern(c, "repeat");
+  }
+
+  // ---------- shape outlines ----------
+  function densify(p, step) {
+    const o = [];
+    for (let i = 0; i < p.length; i++) {
+      const a = p[i], b = p[(i + 1) % p.length], d = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.ceil(d / step));
+      for (let k = 0; k < n; k++) o.push([a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n]);
+    }
+    return o;
+  }
+  function ell(cx, cy, rx, ry, rot = 0) {
+    const n = Math.max(24, Math.round(Math.PI * (rx + ry) / 7)), c = Math.cos(rot), s = Math.sin(rot), p = [];
+    for (let i = 0; i < n; i++) { const a = i / n * TAU, x = Math.cos(a) * rx, y = Math.sin(a) * ry; p.push([cx + x * c - y * s, cy + x * s + y * c]); }
+    return p;
+  }
+  function rr(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2); const p = [];
+    for (const [cx, cy, a0] of [[x + w - r, y + r, -Math.PI / 2], [x + w - r, y + h - r, 0], [x + r, y + h - r, Math.PI / 2], [x + r, y + r, Math.PI]])
+      for (let k = 0; k <= 6; k++) { const a = a0 + k / 6 * Math.PI / 2; p.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); }
+    return densify(p, 10);
+  }
+  function cap(x1, y1, x2, y2, r) {
+    const a = Math.atan2(y2 - y1, x2 - x1), p = [];
+    for (let k = 0; k <= 10; k++) { const b = a - Math.PI / 2 + k / 10 * Math.PI; p.push([x2 + Math.cos(b) * r, y2 + Math.sin(b) * r]); }
+    for (let k = 0; k <= 10; k++) { const b = a + Math.PI / 2 + k / 10 * Math.PI; p.push([x1 + Math.cos(b) * r, y1 + Math.sin(b) * r]); }
+    return densify(p, 10);
+  }
+  const poly = pts => densify(pts, 10);
+  function star(cx, cy, R) { const p = []; for (let k = 0; k < 8; k++) { const a = k / 8 * TAU - Math.PI / 2, r = k % 2 ? R * 0.34 : R; p.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return poly(p); }
+
+  // ---------- felt renderer ----------
+  function felt(pts, color, seed, o = {}) {
+    const r = rng(seed * 997 + 1);
+    let cx = 0, cy = 0; for (const [x, y] of pts) { cx += x; cy += y; } cx /= pts.length; cy /= pts.length;
+    const wob = o.wob ?? 1.8;
+    const q = pts.map(([x, y], i) => { const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy) || 1, w = (Math.sin(i * 0.9 + seed) * 0.6 + (r() - 0.5)) * wob; return [x + dx / d * w, y + dy / d * w]; });
+    const rb = rng(seed * 31 + BOIL * 7919), jit = o.jit ?? 2.2;
+    g.save();
+    g.translate((rb() - 0.5) * jit, (rb() - 0.5) * jit);
+    if (o.alpha != null) g.globalAlpha = o.alpha;
+    const path = new Path2D(); q.forEach(([x, y], i) => i ? path.lineTo(x, y) : path.moveTo(x, y)); path.closePath();
+    let minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9;
+    for (const [x, y] of q) { if (x < minx) minx = x; if (y < miny) miny = y; if (x > maxx) maxx = x; if (y > maxy) maxy = y; }
+    if (o.shadow !== false) { g.save(); g.translate(o.sx ?? 3, o.sy ?? 6); g.fillStyle = "rgba(80,45,40,0.17)"; g.fill(path); g.restore(); }
+    g.fillStyle = color; g.fill(path);
+    const gr = g.createLinearGradient(minx, miny, maxx, maxy);
+    gr.addColorStop(0, "rgba(255,255,255,0.22)"); gr.addColorStop(0.55, "rgba(255,255,255,0)"); gr.addColorStop(1, "rgba(70,35,35,0.15)");
+    g.fillStyle = gr; g.fill(path);
+    PAT.setTransform(new DOMMatrix([1, 0, 0, 1, Math.round(minx) - seed * 13 % 200, Math.round(miny) - seed * 7 % 200]));
+    g.fillStyle = PAT; g.fill(path);
+    const rh = rng(seed * 13 + 5);
+    g.strokeStyle = color; g.globalAlpha = (o.alpha ?? 1) * 0.75; g.lineWidth = 1.4; g.beginPath();
+    for (const [x, y] of q) { const a = Math.atan2(y - cy, x - cx) + (rh() - 0.5) * 1.5, l = 2 + rh() * 5.5; g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); }
+    g.stroke();
+    g.restore();
+    return path;
+  }
+  function stitch(x, y, w, h, r, col = "rgba(255,255,255,0.8)") {
+    g.save(); g.setLineDash([16, 11]); g.lineWidth = 4; g.strokeStyle = col; g.lineCap = "round";
+    g.beginPath(); g.roundRect(x, y, w, h, r); g.stroke(); g.restore();
+  }
+  function text(str, x, y, size, color, o = {}) {
+    g.save(); g.font = `${o.w ?? 800} ${size}px ${o.f ?? FD}`; g.textAlign = o.align ?? "center"; g.textBaseline = "middle";
+    if (o.shadow !== false) { g.fillStyle = "rgba(70,35,35,0.22)"; g.fillText(str, x + 2, y + 4); }
+    g.fillStyle = color; g.fillText(str, x, y); g.restore();
+  }
+  function tag(cx, cy, label, color, seed, size = 48) {
+    g.save(); g.font = `800 ${size}px ${FD}`; const w = g.measureText(label).width + 64; g.restore();
+    const h = size * 1.7;
+    felt(rr(cx - w / 2, cy - h / 2, w, h, h / 2), color, seed);
+    text(label, cx, cy + 3, size, C.ink, { shadow: false });
+    return w;
+  }
+
+  // ---------- the Brainy Muse ----------
+  function ik(sx, sy, tx, ty) {
+    const L1 = 170, L2 = 160; const dx = tx - sx, dy = ty - sy, d = Math.hypot(dx, dy) || 1;
+    const dd = clamp(d, 40, L1 + L2 - 4), a = Math.atan2(dy, dx);
+    const k = Math.acos(clamp((L1 * L1 + dd * dd - L2 * L2) / (2 * L1 * dd), -1, 1));
+    let e = null;
+    for (const sg of [1, -1]) { const ea = a + sg * k, c = [sx + Math.cos(ea) * L1, sy + Math.sin(ea) * L1]; if (!e || c[1] > e[1]) e = c; }
+    return { e, h: [sx + dx / d * dd, sy + dy / d * dd] };
+  }
+  function muse(m) {
+    g.save(); g.translate(m.x, m.y); g.scale(m.s, m.s);
+    const S = 100;
+    const bl = m.browL ?? 0, br = m.browR ?? 0, lk = m.look ?? [0, 0], smile = m.smile ?? 0.5;
+    // hair, bun and scrunchie
+    felt(ell(0, -10, 172, 180), C.hair, S + 3);
+    felt(ell(0, -218, 80, 72), C.hair, S + 1);
+    felt(ell(0, -156, 54, 17), C.scrunch, S + 2, { shadow: false });
+    // body
+    felt(rr(-38, 120, 76, 100, 24), C.skin2, S + 4);
+    felt(poly([[-205, 205], [205, 205], [258, 330], [292, 720], [-292, 720], [-258, 330]]), C.coat, S + 5);
+    felt(poly([[-72, 200], [72, 200], [0, 335]]), C.shirt, S + 6);
+    felt(poly([[-76, 198], [-14, 300], [-58, 450], [-130, 214]]), C.lapel, S + 7);
+    felt(poly([[76, 198], [14, 300], [58, 450], [130, 214]]), C.lapel, S + 8);
+    felt(rr(-205, 440, 94, 76, 12), C.lapel, S + 9);
+    felt(cap(-172, 405, -172, 462, 9), C.pen, S + 10, { shadow: false });
+    felt(ell(36, 480, 10, 10), C.button, S + 11, { shadow: false });
+    felt(ell(36, 570, 10, 10), C.button, S + 17, { shadow: false });
+    // head
+    felt(ell(-143, 22, 26, 38), C.skin, S + 12); felt(ell(143, 22, 26, 38), C.skin, S + 13);
+    felt(ell(0, 10, 146, 156), C.skin, S + 14);
+    felt(ell(-52, -112, 112, 58, -0.25), C.hair, S + 15, { shadow: false });
+    felt(ell(60, -118, 104, 54, 0.3), C.hair, S + 16, { shadow: false });
+    // safety glasses pushed up on the head
+    felt(rr(-18, -150, 36, 13, 6), C.frame, S + 18, { shadow: false });
+    for (const sx of [-1, 1]) {
+      felt(ell(sx * 60, -142, 47, 36), C.frame, S + 20 + sx);
+      felt(ell(sx * 60, -142, 34, 24), C.lens, S + 24 + sx, { shadow: false });
+      g.fillStyle = "rgba(255,255,255,0.85)"; g.beginPath(); g.ellipse(sx * 60 - 12, -150, 9, 5, -0.4, 0, TAU); g.fill();
+    }
+    // eyes
+    const blink = m.blink;
+    for (const sx of [-1, 1]) {
+      if (blink) { felt(cap(sx * 34, 30, sx * 76, 30, 4), C.pupil, S + 30 + sx, { shadow: false }); continue; }
+      felt(ell(sx * 55, 25, 25, 29), C.eyeW, S + 32 + sx, { shadow: false });
+      felt(ell(sx * 55 + lk[0] * 7, 30 + lk[1] * 6, 13, 15), C.pupil, S + 34 + sx, { shadow: false, wob: 0.6 });
+      g.fillStyle = "#fff"; g.beginPath(); g.arc(sx * 55 + lk[0] * 7 + 5, 24 + lk[1] * 6, 4.5, 0, TAU); g.fill();
+    }
+    // brows: positive raises, negative lowers
+    felt(cap(-84, -30 - bl * 22, -30, -24 - bl * 14 + (bl < 0 ? 8 : 0), 7), C.hair, S + 40, { shadow: false });
+    felt(cap(84, -30 - br * 22, 30, -24 - br * 14 + (br < 0 ? 8 : 0), 7), C.hair, S + 41, { shadow: false });
+    felt(ell(0, 64, 15, 11), C.nose, S + 42, { shadow: false });
+    for (const sx of [-1, 1]) felt(ell(sx * 92, 82, 30, 18), C.cheek, S + 43 + sx, { shadow: false, alpha: 0.7 });
+    // mouth
+    const open = m.open ?? 0;
+    if (open > 0.08) {
+      felt(ell(0, 112, 26 + smile * 10, 6 + open * 24), C.mouth, S + 46, { shadow: false, wob: 0.8 });
+      felt(ell(0, 114 + open * 12, 13, 4 + open * 6), C.tongue, S + 47, { shadow: false, wob: 0.5 });
+    } else {
+      g.save(); g.strokeStyle = C.mouth; g.lineWidth = 8; g.lineCap = "round"; g.beginPath();
+      g.moveTo(-40, 104); g.quadraticCurveTo(0, 104 + 40 * Math.max(0.15, smile), 40, 104); g.stroke(); g.restore();
+    }
+    // arms, prop, hands
+    const A = ik(-190, 250, m.L[0], m.L[1]), B = ik(190, 250, m.R[0], m.R[1]);
+    for (const [arm, sx, sd] of [[A, -190, 50], [B, 190, 60]]) {
+      felt(cap(sx, 250, arm.e[0], arm.e[1], 45), C.coat, S + sd);
+      felt(cap(arm.e[0], arm.e[1], arm.h[0], arm.h[1], 39), C.coat, S + sd + 1);
+      const cx = arm.e[0] + (arm.h[0] - arm.e[0]) * 0.84, cy = arm.e[1] + (arm.h[1] - arm.e[1]) * 0.84;
+      felt(ell(cx, cy, 33, 33), C.lapel, S + sd + 2, { shadow: false });
+    }
+    if (m.prop) m.prop(A.h, B.h);
+    for (const [arm, sd, sx] of [[A, 70, -1], [B, 72, 1]]) {
+      felt(ell(arm.h[0] + sx * 22, arm.h[1] - 14, 15, 13), C.skin, S + sd + 1);
+      felt(ell(arm.h[0], arm.h[1], 34, 31), C.skin, S + sd);
+    }
+    g.restore();
+  }
+
+  // ---------- props ----------
+  function medBox(cx, cy, body, band, seed, price, priceSide) {
+    const ty = cy - 150, tx = cx + priceSide * 120;
+    g.save(); g.strokeStyle = "#8a6f62"; g.lineWidth = 3; g.beginPath(); g.moveTo(cx + priceSide * 92, cy - 118); g.lineTo(tx, ty + 30); g.stroke(); g.restore();
+    felt(rr(cx - 95, cy - 125, 190, 250, 18), body, seed);
+    felt(rr(cx - 95, cy - 60, 190, 42, 6), band, seed + 1, { shadow: false });
+    felt(cap(cx - 32, cy + 50, cx + 32, cy + 50, 20), "#ffffff", seed + 2, { shadow: false });
+    felt(cap(cx, cy + 50, cx + 32, cy + 50, 20), band, seed + 3, { shadow: false });
+    felt(rr(tx - 56, ty - 4, 112, 58, 14), C.tag, seed + 4);
+    text(price, tx, ty + 27, 38, C.ink, { shadow: false });
+  }
+  function sparkles(cx, cy, rx, ry, n, seed, col = "#fff1b8") {
+    const r = rng(seed);
+    for (let i = 0; i < n; i++) {
+      const a = r() * TAU, x = cx + Math.cos(a) * rx * (0.8 + r() * 0.3), y = cy + Math.sin(a) * ry * (0.8 + r() * 0.3);
+      const tw = (Math.sin(FRAME * 0.9 + i * 2.1) + 1) / 2;
+      if (tw > 0.25) felt(star(x, y, 14 + tw * 14), col, seed + i * 3, { shadow: false, wob: 0.5 });
+    }
+  }
+  function sign(cx, cy, sx, label, color, seed) {
+    const w = Math.max(24, 520 * sx), h = 270;
+    felt(rr(cx - w / 2, cy - h / 2, w, h, 28), color, seed);
+    if (sx > 0.3) {
+      stitch(cx - w / 2 + 16, cy - h / 2 + 16, w - 32, h - 32, 18);
+      g.save(); g.translate(cx, cy); g.scale(sx, 1); text(label, 0, 14, 176, "#ffffff"); g.restore();
+    }
+  }
+
+  // ---------- background & foreground (static) ----------
+  let BG, FG;
+  function buildStatic() {
+    const prevG = g, prevP = PAT;
+    BG = document.createElement("canvas"); BG.width = W; BG.height = H;
+    g = BG.getContext("2d"); PAT = makePattern(g); BOIL = 0;
+    const wall = g.createLinearGradient(0, 0, 0, 1420);
+    wall.addColorStop(0, "#f8e5d4"); wall.addColorStop(1, "#e6f0e4");
+    g.fillStyle = wall; g.fillRect(0, 0, W, H);
+    const glow = g.createRadialGradient(220, 260, 40, 220, 260, 1000);
+    glow.addColorStop(0, "rgba(255,212,150,0.45)"); glow.addColorStop(1, "rgba(255,212,150,0)");
+    g.fillStyle = glow; g.fillRect(0, 0, W, H);
+    g.globalAlpha = 0.55; g.fillStyle = PAT; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+    // wall decor: molecule poster and a shelf of glassware
+    felt(rr(70, 560, 230, 290, 20), "#fdf4ea", 501);
+    g.save(); g.strokeStyle = "#e58f8f"; g.lineWidth = 7; g.lineJoin = "round"; g.beginPath();
+    for (let k = 0; k <= 6; k++) { const a = k / 6 * TAU + Math.PI / 6, x = 185 + Math.cos(a) * 62, y = 700 + Math.sin(a) * 62; k ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.moveTo(185 + 62 * Math.cos(-Math.PI / 6 + TAU / 6), 700 + 62 * Math.sin(-Math.PI / 6 + TAU / 6)); g.lineTo(255, 610);
+    g.stroke(); g.restore();
+    for (const [x, y, c] of [[185, 638, "#86c3b8"], [255, 610, "#efb36a"], [131, 731, "#9cc0e6"], [239, 731, "#9cc0e6"]]) felt(ell(x, y, 17, 17), c, x + y, { shadow: false });
+    felt(rr(770, 610, 280, 26, 10), "#c99a72", 510);
+    felt(poly([[810, 505], [840, 505], [840, 540], [885, 605], [765, 605], [810, 540]]), "#a9dccf", 511);
+    felt(poly([[790, 575], [860, 575], [882, 605], [768, 605]]), "#5fb7a3", 512, { shadow: false });
+    felt(rr(910, 520, 70, 88, 10), "#f5d6a8", 513);
+    felt(rr(910, 560, 70, 48, 8), "#f2b45e", 514, { shadow: false });
+    felt(ell(1020, 560, 30, 46), "#f6b8c8", 515);
+    felt(rr(1012, 488, 16, 40, 6), "#f6b8c8", 516);
+
+    FG = document.createElement("canvas"); FG.width = W; FG.height = H;
+    g = FG.getContext("2d"); PAT = makePattern(g);
+    felt(rr(-30, 1420, W + 60, 560, 30), "#dbb48e", 520, { sy: -6 });
+    felt(rr(-30, 1420, W + 60, 44, 18), "#c99c72", 521, { shadow: false });
+    felt(poly([[50, 1300], [150, 1300], [150, 1440], [50, 1440]]), "#d9eef6", 522);
+    felt(rr(50, 1370, 100, 70, 8), "#f6a5b4", 523, { shadow: false });
+    g = prevG; PAT = prevP;
+  }
+
+  // ---------- scenes ----------
+  function talk(sc, t) {
+    if (t < sc.vStart || t > sc.vEnd) return 0;
+    const r = rng(FRAME * 3 + 7); return r() < 0.18 ? 0.05 : 0.25 + r() * 0.75;
+  }
+  const blinkNow = () => FRAME % 41 < 2;
+
+  function scene1(t, sc) {
+    const pop = eob(seg(t, 0, 0.45)), raise = seg(t, 0.9, 1.3);
+    muse({ x: 540, y: 985, s: 0.9 + 0.1 * pop, L: [-300, 250], R: [300, 250], browL: 0, browR: raise, look: [raise * 0.9, 0.1], smile: 0.45, open: talk(sc, t), blink: blinkNow(),
+      prop() {
+        medBox(-300, 120, C.brand, C.gold, 200, "£££", -1);
+        medBox(300, 120, C.generic, C.genBand, 210, "£", 1);
+        sparkles(-300, 120, 150, 170, 5, 220);
+      } });
+  }
+  function scene2(t, sc) {
+    const u = t - sc.start, inP = eob(seg(u, 0, 0.45)), dy = (1 - inP) * 420;
+    const bob = Math.sin(FRAME * 0.5) * 6, shrug = seg(u, 4.0, 4.4) - seg(u, 5.6, 6.2);
+    const y = 330 + dy + bob;
+    muse({ x: 540, y: 965, s: 1, L: [-255, y], R: [255, y], browL: -0.4 + shrug * 1.2, browR: -0.4 + shrug * 1.2, look: [0, 0.2], smile: 0.2, open: talk(sc, t), blink: blinkNow(),
+      prop() { sign(0, y, 1, "MYTH", C.red, 300); } });
+  }
+  function scene3(t, sc) {
+    const u = t - sc.start;
+    const drop = eob(seg(u, 0, 0.7)), py = 820 - (1 - drop) * 760, cx = 600;
+    const split = eio(seg(u, 2.3, 3.4)), dx = split * 150, L = 600, R = 125;
+    const half = (x, dir, color, seed) => {
+      const ex = x + dir * (L / 2 - R), p = [];
+      for (let k = 0; k <= 14; k++) { const a = (dir < 0 ? Math.PI / 2 : -Math.PI / 2) + k / 14 * Math.PI; p.push([ex + Math.cos(a) * R, py + Math.sin(a) * R]); }
+      p.push([x, py + (dir < 0 ? -R : R)]); p.push([x, py + (dir < 0 ? R : -R)]);
+      felt(poly(p), color, seed);
+      if (split > 0.05) {
+        felt(ell(x, py, 6 + 24 * split, R - 10), "#fbf3e6", seed + 1, { shadow: false });
+        const r = rng(seed + 9);
+        for (let i = 0; i < 9; i++) { g.fillStyle = "#e3cfb9"; g.beginPath(); g.arc(x + (r() - 0.5) * 30 * split, py + (r() - 0.5) * (R * 1.5), 4 + r() * 3, 0, TAU); g.fill(); }
+      }
+    };
+    if (split > 0) {
+      const pulse = 1 + Math.sin(FRAME * 0.8) * 0.06;
+      const gl = g.createRadialGradient(cx, py, 10, cx, py, 230 * split * pulse);
+      gl.addColorStop(0, "rgba(255,226,120,0.85)"); gl.addColorStop(1, "rgba(255,226,120,0)");
+      g.fillStyle = gl; g.beginPath(); g.arc(cx, py, 230 * split * pulse, 0, TAU); g.fill();
+      felt(ell(cx, py, 92 * split * pulse, 92 * split * pulse), C.core, 330);
+      if (split > 0.6) sparkles(cx, py, 120, 120, 4, 331, "#fffbe0");
+    }
+    half(cx - dx, -1, C.shellA, 310);
+    half(cx + dx, 1, C.shellB, 320);
+    if (u > 3.2) {
+      const p = eob(seg(u, 3.2, 3.6));
+      g.save(); g.translate(cx, py + 215); g.scale(p, p);
+      g.strokeStyle = "#8a6f62"; g.lineWidth = 3; g.beginPath(); g.moveTo(0, -44); g.lineTo(0, -120); g.stroke();
+      tag(0, 0, "active ingredient", C.core, 340, 46); g.restore();
+    }
+    if (u > 6.3) {
+      const p = eob(seg(u, 6.3, 6.7));
+      g.save(); g.translate(cx, py - 240); g.scale(p, p);
+      g.strokeStyle = "#8a6f62"; g.lineWidth = 3; g.beginPath();
+      g.moveTo(-150, 40); g.lineTo(-dx - 150, 240 - R); g.moveTo(150, 40); g.lineTo(dx + 150, 240 - R); g.stroke();
+      tag(0, 0, "colour · shape · filler", "#fde3ea", 350, 44); g.restore();
+    }
+    muse({ x: 215, y: 1255, s: 0.62, L: [-150, 520], R: [250, -150], browL: 0.3, browR: 0.3, look: [1, -0.6], smile: 0.6, open: talk(sc, t), blink: blinkNow() });
+  }
+  function scene4(t, sc) {
+    const u = t - sc.start;
+    // legend and finish flag
+    const lp = eob(seg(u, 0.2, 0.6));
+    if (lp > 0) {
+      g.save(); g.translate(600, 790); g.scale(lp, lp);
+      felt(rr(-230, -42, 460, 84, 42), C.tag, 400);
+      felt(cap(-200, 0, -150, 0, 18), C.brand, 401, { shadow: false }); text("brand", -85, 3, 40, C.ink, { shadow: false });
+      felt(cap(15, 0, 65, 0, 18), C.genPill, 402, { shadow: false }); text("generic", 145, 3, 40, C.ink, { shadow: false });
+      g.restore();
+    }
+    felt(rr(924, 690, 12, 180, 6), "#8a6f62", 403);
+    felt(rr(936, 690, 110, 72, 6), "#ffffff", 404);
+    g.fillStyle = "#3b2a36";
+    for (let i = 0; i < 5; i++) for (let j = 0; j < 3; j++) if ((i + j) % 2 === 0) g.fillRect(938 + i * 21.6, 692 + j * 23, 21.6, 23);
+    // blood vessel
+    felt(rr(70, 860, 940, 280, 140), C.vessel, 410);
+    felt(rr(95, 885, 890, 230, 115), C.lumen, 411, { shadow: false });
+    const r = rng(420);
+    for (let i = 0; i < 10; i++) {
+      const x0 = r() * 900, y = 905 + r() * 190, sp = 50 + r() * 60;
+      const x = 120 + ((x0 + sp * u) % 860);
+      felt(ell(x, y, 27, 18, r() * 0.6 - 0.3), C.rbc, 430 + i, { shadow: false });
+      felt(ell(x, y, 11, 6), "#b9403c", 450 + i, { shadow: false, wob: 0.4 });
+    }
+    g.fillStyle = "#3b2a36";
+    for (let j = 0; j < 12; j++) for (let i = 0; i < 2; i++) if ((i + j) % 2 === 0) g.fillRect(890 + i * 20, 888 + j * 19, 20, 19);
+    g.fillStyle = "rgba(255,255,255,0.9)";
+    for (let j = 0; j < 12; j++) for (let i = 0; i < 2; i++) if ((i + j) % 2 === 1) g.fillRect(890 + i * 20, 888 + j * 19, 20, 19);
+    // pills
+    const pill = (sx, laneY, color, dir, seed) => {
+      const fall = eio(seg(u, 0.4, 2.6)), rot = (1 - eio(seg(u, 2.2, 2.9))) * Math.PI / 2;
+      const race = seg(u, 3, 11), e = eio(race);
+      let x = sx + (885 - sx) * e + dir * Math.sin(race * Math.PI * 2) * 34 * Math.sin(race * Math.PI);
+      const y = 430 + (laneY - 430) * fall + (race > 0 && race < 1 ? Math.sin(FRAME * 1.3 + seed) * 4 : 0);
+      const c = Math.cos(rot) * 28, s = Math.sin(rot) * 28;
+      felt(cap(x - c, y - s, x + c, y + s, 31), color, seed);
+      felt(ell(x - c * 0.6, y - s * 0.6 - 10, 12, 6, rot), "rgba(255,255,255,0.7)", seed + 1, { shadow: false, wob: 0.3 });
+    };
+    // funnel tube in front of the vessel wall
+    felt(poly([[80, 420], [360, 420], [295, 510], [145, 510]]), C.glass, 460, { alpha: 0.9 });
+    felt(rr(145, 500, 150, 400, 26), C.glass, 461, { alpha: 0.78 });
+    pill(185, 960, C.brand, 1, 470);
+    pill(255, 1040, C.genPill, -1, 480);
+    // arrival
+    const arrive = u > 11;
+    if (arrive) {
+      const p = eob(seg(u, 11, 11.4));
+      g.save(); g.translate(560, 650); g.scale(p, p);
+      felt(star(0, 0, 105), "#ffd25e", 490); text("TIE!", 0, 8, 58, C.ink, { shadow: false }); g.restore();
+      const rc = rng(495);
+      for (let i = 0; i < 36; i++) {
+        const x = 420 + rc() * 640, vy = 160 + rc() * 220, y = 560 + (u - 11) * vy + Math.sin(FRAME * 0.7 + i) * 8;
+        const col = ["#f3a9ba", "#9ccbe8", "#ffd25e", "#a9dccf", "#b9a0e3"][i % 5];
+        if (y < 1400) felt(ell(x, y, 11, 8, i), col, 500 + i, { shadow: false, wob: 0.4 });
+      }
+    }
+    const cheer = eob(seg(u, 11, 11.4));
+    muse({ x: 905, y: 1300, s: 0.5, L: [-200 + cheer * 0, 430 - cheer * 600], R: [200, 430 - cheer * 600 + Math.sin(FRAME) * cheer * 20], browL: 0.2 + cheer * 0.6, browR: 0.2 + cheer * 0.6, look: [-0.9, -0.7], smile: 0.5 + cheer * 0.5, open: Math.max(talk(sc, t), cheer > 0.5 && u < 12.5 ? 0.9 : 0), blink: blinkNow() });
+  }
+  function chalkText(str, x, y, size, prog, align = "left") {
+    if (prog <= 0) return;
+    g.save(); g.font = `700 ${size}px ${FC}`; g.textAlign = align; g.textBaseline = "middle";
+    const w = g.measureText(str).width, x0 = align === "center" ? x - w / 2 : x;
+    g.beginPath(); g.rect(x0 - 10, y - size, (w + 20) * prog, size * 2); g.clip();
+    g.fillStyle = C.chalk; g.fillText(str, x, y); g.restore();
+  }
+  function chalkLine(x1, y1, x2, y2, prog, dash) {
+    if (prog <= 0) return;
+    g.save(); g.strokeStyle = C.chalk; g.lineWidth = 6; g.lineCap = "round"; if (dash) g.setLineDash(dash);
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x1 + (x2 - x1) * prog, y1 + (y2 - y1) * prog); g.stroke(); g.restore();
+  }
+  function scene5(t, sc) {
+    const u = t - sc.start;
+    felt(rr(140, 440, 800, 640, 26), C.wood, 600);
+    felt(rr(170, 470, 740, 580, 14), C.board, 601, { shadow: false });
+    g.save(); g.globalAlpha = 0.12; g.fillStyle = "#fff"; g.beginPath(); g.ellipse(420, 640, 160, 60, -0.2, 0, TAU); g.fill(); g.restore();
+    chalkText("2,070 studies", 215, 545, 74, seg(u, 0.3, 1.4));
+    chalkLine(270, 970, 870, 970, seg(u, 0.8, 1.3));
+    chalkLine(270, 970, 270, 600, seg(u, 0.8, 1.3));
+    const base = 970, maxH = 320;
+    const hb = maxH * eio(seg(u, 1.2, 2.6)), hg = maxH * 0.965 * eio(seg(u, 1.6, 3.0));
+    if (hb > 4) felt(rr(350, base - hb, 170, hb, 10), C.brand, 610, { shadow: false });
+    if (hg > 4) felt(rr(590, base - hg, 170, hg, 10), C.genPill, 611, { shadow: false });
+    chalkText("brand", 435, 1012, 50, seg(u, 2.6, 3.1), "center");
+    chalkText("generic", 675, 1012, 50, seg(u, 2.9, 3.4), "center");
+    chalkLine(350, base - maxH - 2, 790, base - maxH - 2, seg(u, 5.5, 6.3), [14, 12]);
+    chalkText("~3.5%", 800, 640, 60, seg(u, 6.0, 6.9));
+    muse({ x: 900, y: 1262, s: 0.55, L: [-250, -170], R: [200, 520], browL: 0.3, browR: 0.3, look: [-1, -0.6], smile: 0.55, open: talk(sc, t), blink: blinkNow(),
+      prop(h) { felt(cap(h[0], h[1], h[0] - 150, h[1] - 110, 7), "#c08a5a", 620); } });
+  }
+  function scene6(t, sc) {
+    const u = t - sc.start, p = seg(u, 0.5, 1.3);
+    const sx = Math.max(0.04, Math.abs(Math.cos(p * Math.PI)));
+    const flipped = p >= 0.5, done = seg(u, 1.3, 1.7);
+    const y = 330 + Math.sin(FRAME * 0.5) * 5 - eob(done) * 10 + 10;
+    const hx = Math.max(70, 255 * sx);
+    muse({ x: 540, y: 965, s: 1, L: [-hx, y], R: [hx, y], browL: flipped ? 0.7 : 0.1, browR: flipped ? 0.7 : 0.1, look: [0, flipped ? -0.2 : 0.3], smile: flipped ? 1 : 0.4, open: talk(sc, t), blink: !flipped && blinkNow(),
+      prop() {
+        sign(0, y, sx, flipped ? "FACT" : "MYTH", flipped ? C.green : C.red, flipped ? 700 : 300);
+        if (done > 0) sparkles(0, y, 330, 190, 7, 710);
+      } });
+  }
+  function scene7(t, sc) {
+    const u = t - sc.start, wave = Math.sin(FRAME * 1.1) * 48;
+    muse({ x: 540, y: 990, s: 1, L: [-205, 520], R: [255 + wave, -50], browL: 0.5, browR: 0.5, look: [0.2, 0], smile: 0.9, open: talk(sc, t), blink: blinkNow() });
+    const p = eob(seg(u, 0.3, 0.7));
+    if (p > 0) {
+      g.save(); g.translate(800, 615); g.scale(p, p);
+      felt(poly([[-110, 60], [-175, 175], [-30, 85]]), "#ffffff", 800);
+      felt(ell(0, 0, 195, 125), "#ffffff", 801);
+      for (let i = 0; i < 3; i++) {
+        const b = Math.max(0, Math.sin(FRAME * 0.9 - i * 1.1)) * 16;
+        felt(ell(-62 + i * 62, -b, 20, 20), "#8c6f9b", 802 + i, { shadow: false });
+      }
+      g.restore();
+    }
+  }
+  const RENDER = [scene1, scene2, scene3, scene4, scene5, scene6, scene7];
+
+  // ---------- overlays ----------
+  function wrapLines(str, font, maxW) {
+    g.save(); g.font = font; const words = str.split(" "), lines = []; let line = "";
+    for (const w of words) { const test = line ? line + " " + w : w; if (g.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test; }
+    lines.push(line); g.restore(); return lines;
+  }
+  function banner(sc, t) {
+    const font = `800 70px ${FD}`, lines = wrapLines(sc.text, font, 860);
+    g.save(); g.font = font; const w = Math.max(...lines.map(l => g.measureText(l).width)) + 90; g.restore();
+    const h = lines.length * 82 + 50, cy = 215 + h / 2;
+    const p = eob(seg(t - sc.start, 0, 0.35));
+    g.save(); g.translate(540, cy); g.scale(0.7 + 0.3 * p, 0.7 + 0.3 * p);
+    felt(rr(-w / 2, -h / 2, w, h, 34), "#fffaf2", 900 + SCENES.indexOf(sc), { wob: 1.2 });
+    lines.forEach((l, i) => {
+      const ly = -h / 2 + 25 + 41 + i * 82;
+      if (sc.label === "Myth" && i === 0 && l.startsWith("MYTH:")) {
+        g.save(); g.font = font; const full = g.measureText(l).width, mw = g.measureText("MYTH: ").width; g.restore();
+        text("MYTH:", -full / 2, ly + 4, 70, C.red, { align: "left", shadow: false });
+        text(l.slice(6), -full / 2 + mw, ly + 4, 70, C.ink, { align: "left", shadow: false });
+      } else text(l, 0, ly + 4, 70, C.ink, { shadow: false });
+    });
+    g.restore();
+  }
+  function captions(sc, t) {
+    let idx = -1; sc.wt.forEach((wt, i) => { if (t >= wt) idx = i; });
+    const spoken = t > sc.vEnd;
+    const chunk = sc.chunks.find(c => c.includes(Math.max(idx, 0)));
+    if (!chunk) return;
+    let size = 60, font;
+    const words = chunk.map(i => sc.words[i]);
+    let widths, space, total;
+    do {
+      font = `900 ${size}px ${FB}`; g.save(); g.font = font;
+      widths = words.map(w => g.measureText(w).width); space = g.measureText(" ").width * 1.5 + 4; g.restore();
+      total = widths.reduce((a, b) => a + b, 0) + space * (words.length - 1); size -= 2;
+    } while (total > 960 && size > 36);
+    let x = 540 - total / 2; const y = 1545;
+    g.save(); g.font = font; g.textAlign = "left"; g.textBaseline = "middle"; g.lineJoin = "round";
+    words.forEach((w, k) => {
+      const i = chunk[k], active = !spoken && i === idx;
+      g.lineWidth = 13; g.strokeStyle = "rgba(43,28,38,0.92)"; g.strokeText(w, x, y);
+      g.fillStyle = active ? "#ffd45c" : "#ffffff"; g.fillText(w, x, y);
+      x += widths[k] + space;
+    });
+    g.restore();
+  }
+
+  // ---------- frame ----------
+  const canvas = document.getElementById("reel");
+  const main = canvas.getContext("2d"), mainPat = makePattern(main);
+  function renderAt(tRaw) {
+    const t0 = clamp(tRaw, 0, DUR - 0.001);
+    FRAME = Math.floor(t0 * FPS); const t = FRAME / FPS; BOIL = Math.floor(FRAME / 2);
+    g = main; PAT = mainPat;
+    if (!BG) buildStatic();
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.drawImage(BG, 0, 0);
+    const i = SCENES.findIndex(s => t >= s.start && t < s.end), sc = SCENES[i < 0 ? SCENES.length - 1 : i];
+    RENDER[SCENES.indexOf(sc)](t, sc);
+    g.drawImage(FG, 0, 0);
+    banner(sc, t);
+    captions(sc, t);
+    return SCENES.indexOf(sc);
+  }
+  window.renderAt = renderAt;
+
+  // ---------- page UI ----------
+  const $ = id => document.getElementById(id);
+  const list = $("scenes");
+  const fmt = s => `0:${String(Math.floor(s)).padStart(2, "0")}`;
+  SCENES.forEach((s, i) => {
+    const li = document.createElement("li"); li.tabIndex = 0;
+    li.innerHTML = `<span class="when"><b>${s.label}</b>${fmt(s.start)}–${s.end === 60 ? "1:00" : fmt(s.end)}</span><p class="ost"></p><p class="vo"></p>`;
+    li.querySelector(".ost").textContent = s.text; li.querySelector(".vo").textContent = `“${s.vo}”`;
+    const go = () => { seek(s.start); };
+    li.addEventListener("click", go); li.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    list.appendChild(li);
+  });
+  const items = [...list.children];
+
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let t = reduce ? 13.5 : 0, playing = false, last = 0, lastScene = -1, spoken = -1;
+  const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+  if (!synth) $("voiceWrap").hidden = true;
+  function speak(i) {
+    if (!synth || !$("voice").checked) return;
+    try {
+      synth.cancel();
+      const s = SCENES[i], u = new SpeechSynthesisUtterance(s.vo);
+      u.lang = "en-GB"; u.rate = clamp((s.words.length / 2.6) / (s.vEnd - s.vStart), 0.95, 1.45);
+      synth.speak(u);
+    } catch (e) { /* voice is optional */ }
+  }
+  function seek(v) { t = clamp(v, 0, DUR); spoken = -1; if (synth) synth.cancel(); if (!playing) draw(); }
+  function setPlaying(p) {
+    playing = p; $("play").textContent = p ? "Pause" : t >= DUR - 0.01 ? "Replay" : "Play";
+    if (!p && synth) synth.cancel();
+    if (p) { last = performance.now(); spoken = -1; }
+  }
+  function draw() {
+    const i = renderAt(t);
+    $("seek").value = t.toFixed(2);
+    $("time").textContent = `${fmt(Math.min(t, 59.99))} / 1:00`;
+    if (i !== lastScene) { items.forEach((li, k) => li.classList.toggle("on", k === i)); lastScene = i; }
+    if (playing && i !== spoken) { spoken = i; if (t - SCENES[i].start < 0.4) speak(i); }
+  }
+  function loop(now) {
+    if (playing) {
+      t += (now - last) / 1000; last = now;
+      if (t >= DUR) { t = DUR; setPlaying(false); }
+      draw();
+    }
+    requestAnimationFrame(loop);
+  }
+  $("play").addEventListener("click", () => { if (t >= DUR - 0.01) t = 0; setPlaying(!playing); });
+  $("restart").addEventListener("click", () => { t = 0; spoken = -1; if (synth) synth.cancel(); setPlaying(true); });
+  $("seek").addEventListener("input", e => seek(parseFloat(e.target.value)));
+  $("voice").addEventListener("change", () => { if (!$("voice").checked && synth) synth.cancel(); });
+  $("copy").addEventListener("click", async () => {
+    const txt = $("captionText").textContent;
+    try { await navigator.clipboard.writeText(txt); $("copyMsg").hidden = false; setTimeout(() => ($("copyMsg").hidden = true), 1600); }
+    catch (e) { const r = document.createRange(); r.selectNodeContents($("captionText")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+  });
+
+  draw();
+  document.fonts.ready.then(() => { BG = null; draw(); });
+  Promise.all(["800 70px \"Baloo 2\"", "900 60px Nunito", "700 70px Caveat"].map(f => document.fonts.load(f))).then(() => draw()).catch(() => {});
+  if (!reduce) setPlaying(true);
+  requestAnimationFrame(loop);
+})();
+</script>
