@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560" role="img" aria-labelledby="t">
+  <title id="t">Project mascot: a happy little cell with a bow</title>
+  <defs>
+    <clipPath id="body">
+      <path id="bodyPath" d="M170 40 C235 22 300 45 320 95 C338 140 330 200 332 250 C334 300 318 345 285 375 C250 405 200 412 150 405 C95 397 55 370 45 320 C35 270 55 235 80 210 C100 190 95 150 105 110 C115 70 135 50 170 40 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- tail -->
+  <path d="M195 405 C205 430 160 470 158 500 C156 530 210 520 235 505 C265 490 280 500 295 530 C305 550 335 555 360 530"
+        fill="none" stroke="#1d1d1b" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- body -->
+  <g clip-path="url(#body)">
+    <rect width="400" height="560" fill="#e6e49f"/>
+    <!-- darker golden side -->
+    <path d="M160 38 C132 52 118 78 114 112 C108 160 102 200 80 235 C62 270 66 325 95 355 C125 388 160 402 200 412 L0 430 L0 30 Z" fill="#dfb722"/>
+  </g>
+  <use href="#bodyPath" fill="none" stroke="#1d1d1b" stroke-width="5" stroke-linejoin="round"/>
+
+  <!-- shine -->
+  <path d="M150 85 C165 70 190 62 210 64" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".85"/>
+  <circle cx="225" cy="64" r="3" fill="#fff" opacity=".85"/>
+
+  <!-- bow -->
+  <g fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round">
+    <path d="M253 87 L235 76 L232 96 Z" stroke="#77744a" stroke-width="7"/>
+    <path d="M261 87 L280 76 L274 99 Z" stroke="#77744a" stroke-width="7"/>
+    <path d="M253 87 L235 76 L232 96 Z"/>
+    <path d="M261 87 L280 76 L274 99 Z"/>
+  </g>
+  <circle cx="257" cy="87" r="4" fill="#fff" stroke="#77744a" stroke-width="2"/>
+
+  <!-- eyes -->
+  <g>
+    <ellipse cx="173" cy="155" rx="15" ry="17" fill="#fff"/>
+    <ellipse cx="173" cy="155" rx="11" ry="13" fill="#111"/>
+    <circle cx="169" cy="150" r="3.5" fill="#fff"/>
+    <ellipse cx="283" cy="155" rx="15" ry="17" fill="#fff"/>
+    <ellipse cx="283" cy="155" rx="11" ry="13" fill="#111"/>
+    <circle cx="279" cy="150" r="3.5" fill="#fff"/>
+  </g>
+
+  <!-- freckle blush -->
+  <g fill="#e39a9a" opacity=".7">
+    <circle cx="150" cy="200" r="2"/><circle cx="160" cy="195" r="1.6"/><circle cx="142" cy="208" r="1.6"/>
+    <circle cx="157" cy="207" r="1.4"/><circle cx="168" cy="203" r="1.4"/><circle cx="150" cy="214" r="1.2"/>
+    <circle cx="300" cy="200" r="2"/><circle cx="290" cy="195" r="1.6"/><circle cx="308" cy="208" r="1.6"/>
+    <circle cx="293" cy="207" r="1.4"/><circle cx="282" cy="203" r="1.4"/><circle cx="300" cy="214" r="1.2"/>
+  </g>
+
+  <!-- smile -->
+  <path d="M212 205 C220 222 245 222 252 203" fill="none" stroke="#1d1d1b" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- body contour marks -->
+  <g fill="none" stroke="#77744a" stroke-width="3" stroke-linecap="round">
+    <path d="M310 85 C318 95 320 105 318 115"/>
+    <path d="M300 92 C306 100 308 108 306 116"/>
+    <path d="M113 255 C100 290 110 330 135 355"/>
+    <path d="M318 265 C322 300 312 335 290 355"/>
+    <path d="M305 300 C303 325 290 345 270 360"/>
+    <path d="M175 380 C200 395 235 395 260 380"/>
+    <path d="M185 370 C205 382 230 382 250 372"/>
+  </g>
+</svg>
