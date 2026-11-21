@@ -1,0 +1,793 @@
+<title>How Are Antibodies Made?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800;900&display=swap">
+<style>
+/* Layout: phone-shaped player on the left, the reel script beside it. Pastel ground, mustard as the one highlight. */
+:root {
+  --bg: #fbf4ee;
+  --surface: #fffdfb;
+  --ink: #3a2a35;
+  --muted: #7a6872;
+  --line: #eadcd6;
+  --mustard: #c9961f;
+  --mustard-fill: #e3b23c;
+  --chip: #f4ebf6;
+  --font-display: "Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1d1820; --surface: #27212b; --ink: #f4ebf1; --muted: #b6a5b0; --line: #3b3140;
+    --mustard: #eec25a; --mustard-fill: #e3b23c; --chip: #2f2735; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1d1820; --surface: #27212b; --ink: #f4ebf1; --muted: #b6a5b0; --line: #3b3140;
+  --mustard: #eec25a; --mustard-fill: #e3b23c; --chip: #2f2735; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 44px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+header { display: flex; flex-direction: column; gap: 2px; }
+.eyebrow { margin: 0; font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mustard); }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4.6vw, 42px); line-height: 1.08; text-wrap: balance; }
+.sub { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+.grid { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.player { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.phone { width: 100%; max-width: min(420px, calc((100vh - 140px) * 9 / 16)); min-width: 240px; margin: 0 auto; border-radius: 22px; overflow: hidden; background: #2b2430; box-shadow: 0 14px 40px rgba(90, 50, 70, 0.18); }
+@media (max-width: 820px) { .phone { max-width: 420px; } }
+#reel { display: block; width: 100%; aspect-ratio: 9 / 16; max-width: 100%; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; max-width: 420px; width: 100%; margin: 0 auto; }
+button { font: 800 14px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button:focus-visible, input:focus-visible, li:focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; }
+#play { background: var(--mustard-fill); border-color: var(--mustard-fill); color: #3a2a35; min-width: 84px; }
+.scrub { display: flex; align-items: center; gap: 8px; flex: 1 1 100%; }
+#time { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 13px; color: var(--muted); min-width: 78px; text-align: right; }
+#seek { flex: 1; min-width: 0; accent-color: var(--mustard-fill); }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.toggle input { accent-color: var(--mustard-fill); }
+.note { max-width: 420px; margin: 0 auto; font-size: 12.5px; color: var(--muted); }
+.script { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.script h2 { font-family: var(--font-display); font-weight: 800; font-size: 20px; margin: 0; }
+.scenes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.scenes li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 2px 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); cursor: pointer; }
+.scenes li.on { border-color: var(--mustard-fill); box-shadow: inset 4px 0 0 var(--mustard-fill); }
+.when { grid-row: span 2; font-weight: 800; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.35; }
+.when b { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mustard); }
+.vis { margin: 0; font-size: 13px; color: var(--muted); }
+.vo { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 16px; line-height: 1.35; min-width: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Muse reels · Reel 1 · 9:16 · 60 seconds</p>
+    <h1>How Are Antibodies Made?</h1>
+    <p class="sub">Muse shows how cells in a bioreactor make antibody medicines, from a single superhero antibody to a finished vial. Captions are built in and the music runs underneath.</p>
+  </header>
+
+  <div class="grid">
+    <section class="player" aria-label="Reel player">
+      <div class="phone">
+        <canvas id="reel" width="1080" height="1920" role="img" aria-label="Cartoon reel: Muse explains how cells grown in a bioreactor make antibodies that become medicine."></canvas>
+      </div>
+      <div class="controls">
+        <button id="play" type="button">Play</button>
+        <button id="restart" type="button">Restart</button>
+        <label class="toggle"><input id="musicOn" type="checkbox" checked> Music</label>
+        <label class="toggle" id="voiceWrap"><input id="voice" type="checkbox"> Scratch voice</label>
+        <div class="scrub">
+          <input id="seek" type="range" min="0" max="60" step="0.0333" value="0" aria-label="Position in reel">
+          <span id="time">0:00 / 1:00</span>
+        </div>
+      </div>
+      <p class="note">Scratch voice reads Muse's lines with your browser's built-in voice so you can check timing. Use your real voiceover in the final edit.</p>
+    </section>
+
+    <section class="script" aria-label="Reel script">
+      <h2>Script</h2>
+      <ol class="scenes" id="scenes"></ol>
+    </section>
+  </div>
+</div>
+<audio id="music" src="music.mp3" preload="auto"></audio>
+
+<script>
+(() => {
+  "use strict";
+  const W = 1080, H = 1920, DUR = 60, TAU = Math.PI * 2;
+  const SCENES = [
+    { start: 0, end: 5, label: "Hello", vis: "Muse waves from a bright, cosy cartoon lab.", vo: "Ever wondered how scientists make medicines that fight diseases? Let's grow some antibodies!" },
+    { start: 5, end: 15, label: "Antibody", vis: "A cute Y-shaped antibody character with a smiley face pops up and flexes.", vo: "This is an antibody. It's like a tiny superhero that grabs onto bad guys, like viruses, so your body can kick them out." },
+    { start: 15, end: 25, label: "Bioreactor", vis: "Round, happy cartoon cells bounce into a big shiny tank.", vo: "To make lots of them, we use special cells. We pop them into a giant tank called a bioreactor. Think of it as a five-star hotel for cells!" },
+    { start: 25, end: 35, label: "Feeding", vis: "Cells munch on glowing food bubbles and wear tiny thermometers.", vo: "We feed them sugar and nutrients, keep them warm and give them oxygen. Happy cells make lots of antibodies!" },
+    { start: 35, end: 45, label: "Check-up", vis: "Muse checks a sparkly screen with rising graphs and gives a thumbs up.", vo: "Every day, we check on them, just like a doctor's check-up, to make sure everything's perfect." },
+    { start: 45, end: 55, label: "Harvest", vis: "Antibodies float through a cartoon filter; cells wave goodbye.", vo: "When they're ready, we harvest! We separate the antibodies from the cells, and they're on their way to becoming medicine." },
+    { start: 55, end: 60, label: "Sign-off", vis: "Muse holds up a glowing medicine vial, confetti falls.", vo: "From tiny cells to life-saving medicine. Stay curious, from Muse!" }
+  ];
+  for (const s of SCENES) {
+    s.words = s.vo.split(" ");
+    const win = Math.min(s.end - s.start - 0.3, s.words.length / 2.5);
+    s.vStart = s.start + 0.15; s.vEnd = s.vStart + win;
+    const wts = s.words.map(w => w.length + 3), tot = wts.reduce((a, b) => a + b, 0);
+    let acc = 0; s.wt = wts.map(w => { const v = s.vStart + acc / tot * win; acc += w; return v; });
+    s.chunks = []; let cur = [];
+    s.words.forEach((w, i) => { cur.push(i); if (cur.length >= 6 || /[.?:!]$/.test(w) || (cur.length >= 4 && /,$/.test(w))) { s.chunks.push(cur); cur = []; } });
+    if (cur.length) s.chunks.push(cur);
+  }
+  const wordAt = (s, i) => s.wt[Math.min(i, s.wt.length - 1)] - s.start;
+
+  const C = {
+    mustard: "#e3b23c", mustardHi: "#f6d27a", ink: "#3a2a35", plum: "#5b4256",
+    skin: "#f6dcc6", skinShade: "#ecc6ab", hair: "#24202a", hairHi: "#4a4352", top: "#e3b23c",
+    coat: "#ffffff", coatLine: "#dccfda", lapel: "#f1ecf4", cheek: "#f5a3b0", mouth: "#8e3b4c", tongue: "#f28b9b",
+    lav: "#b9a5f2", lavDeep: "#9d86e6", pink: "#f6b3c6", mint: "#a9dfca", sky: "#a9d3f2", peach: "#f9c9a5", lemon: "#f7e29a",
+    virus: "#9fd3a8", virusSpot: "#7cbf8a", steel: "#dbe4ee", steelDeep: "#b3c2d4", medium: "#f9c7d4", glass: "#dff0f8"
+  };
+  const CELLS = [C.pink, C.mint, C.lav, C.peach, C.sky, C.lemon];
+  const FD = '"Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif';
+  const FB = '"Nunito", "Segoe UI", sans-serif';
+
+  // ---------- helpers ----------
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const eio = p => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eob = p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+  const eo = p => 1 - Math.pow(1 - p, 3);
+  function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const hex = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(",")})`; };
+  const edge = c => c.startsWith("#") ? mix(c, "#6b4a5e", 0.32) : "rgba(107,74,94,0.4)";
+
+  let g;
+  const E = (x, y, rx, ry, rot = 0) => { const p = new Path2D(); p.ellipse(x, y, rx, ry, rot, 0, TAU); return p; };
+  const RR = (x, y, w, h, r) => { const p = new Path2D(); p.roundRect(x, y, w, h, r); return p; };
+  const CAP = (x1, y1, x2, y2, r) => { const a = Math.atan2(y2 - y1, x2 - x1), p = new Path2D(); p.arc(x2, y2, r, a - Math.PI / 2, a + Math.PI / 2); p.arc(x1, y1, r, a + Math.PI / 2, a + Math.PI * 1.5); p.closePath(); return p; };
+  const POLY = pts => { const p = new Path2D(); pts.forEach(([x, y], i) => i ? p.lineTo(x, y) : p.moveTo(x, y)); p.closePath(); return p; };
+
+  function paint(p, fill, o = {}) {
+    g.save();
+    if (o.alpha != null) g.globalAlpha = o.alpha;
+    if (o.shadow !== false) { g.shadowColor = "rgba(110,70,95,0.16)"; g.shadowBlur = o.blur ?? 20; g.shadowOffsetY = o.sy ?? 9; }
+    g.fillStyle = fill; g.fill(p);
+    g.shadowColor = "transparent";
+    if (o.shade) {
+      const [x0, y0, x1, y1] = o.shade, gr = g.createLinearGradient(x0, y0, x1, y1);
+      gr.addColorStop(0, "rgba(255,255,255,0.32)"); gr.addColorStop(0.5, "rgba(255,255,255,0)"); gr.addColorStop(1, "rgba(120,70,100,0.12)");
+      g.fillStyle = gr; g.fill(p);
+    }
+    if (o.line !== false) { g.lineWidth = o.lw ?? 5; g.strokeStyle = o.line ?? edge(fill); g.lineJoin = "round"; g.stroke(p); }
+    g.restore();
+  }
+  function sparkle(x, y, r, col = C.mustard, glow = true) {
+    if (r <= 0.5) return;
+    g.save();
+    if (glow) { const gr = g.createRadialGradient(x, y, 0, x, y, r * 1.6); gr.addColorStop(0, "rgba(255,236,170,0.55)"); gr.addColorStop(1, "rgba(255,236,170,0)"); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r * 1.6, 0, TAU); g.fill(); }
+    g.beginPath(); g.moveTo(x, y - r); g.quadraticCurveTo(x, y, x + r, y); g.quadraticCurveTo(x, y, x, y + r); g.quadraticCurveTo(x, y, x - r, y); g.quadraticCurveTo(x, y, x, y - r);
+    g.fillStyle = col; g.fill(); g.restore();
+  }
+  function sparkles(t, cx, cy, rx, ry, n, seed, size = 26, col = C.mustard) {
+    const r = rng(seed);
+    for (let i = 0; i < n; i++) {
+      const a = r() * TAU, d = 0.7 + r() * 0.4, ph = r() * TAU, sp = 2.5 + r() * 2;
+      const tw = Math.max(0, Math.sin(t * sp + ph));
+      sparkle(cx + Math.cos(a) * rx * d, cy + Math.sin(a) * ry * d, size * (0.5 + r() * 0.6) * tw, i % 3 === 2 ? "#ffffff" : col);
+    }
+  }
+  function text(str, x, y, size, color, o = {}) {
+    g.save(); g.font = `${o.w ?? 800} ${size}px ${o.f ?? FD}`; g.textAlign = o.align ?? "center"; g.textBaseline = "middle";
+    g.fillStyle = color; g.fillText(str, x, y); g.restore();
+  }
+  function chip(cx, cy, label, fill, size = 50, pop = 1, fg = C.ink) {
+    if (pop <= 0) return;
+    g.save(); g.font = `800 ${size}px ${FD}`; const w = g.measureText(label).width + size * 1.3; g.restore();
+    const h = size * 1.75;
+    g.save(); g.translate(cx, cy); g.scale(pop, pop);
+    paint(RR(-w / 2, -h / 2, w, h, h / 2), fill, { lw: 4 });
+    text(label, 0, 4, size, fg);
+    g.restore();
+  }
+  function face(x, y, s, o = {}) {
+    const blink = o.blink, open = o.open ?? 0;
+    g.save(); g.translate(x, y); g.scale(s, s);
+    for (const sx of [-1, 1]) {
+      if (blink) { g.strokeStyle = C.ink; g.lineWidth = 5; g.lineCap = "round"; g.beginPath(); g.arc(sx * 26, -6, 11, 0.2, Math.PI - 0.2); g.stroke(); }
+      else {
+        g.fillStyle = C.ink; g.beginPath(); g.ellipse(sx * 26, -8, 10, 13, 0, 0, TAU); g.fill();
+        g.fillStyle = "#fff"; g.beginPath(); g.arc(sx * 26 + 3, -13, 4, 0, TAU); g.fill();
+      }
+      if (o.angry) { g.strokeStyle = C.ink; g.lineWidth = 5; g.lineCap = "round"; g.beginPath(); g.moveTo(sx * 40, -32); g.lineTo(sx * 12, -24); g.stroke(); }
+      g.fillStyle = "rgba(245,140,160,0.55)"; g.beginPath(); g.ellipse(sx * 44, 8, 11, 7, 0, 0, TAU); g.fill();
+    }
+    g.strokeStyle = C.ink; g.lineWidth = 5; g.lineCap = "round";
+    if (open > 0.05) { g.fillStyle = C.mouth; g.beginPath(); g.ellipse(0, 14, 10 + open * 4, 4 + open * 10, 0, 0, TAU); g.fill(); }
+    else if (o.angry) { g.beginPath(); g.arc(0, 26, 12, Math.PI + 0.5, -0.5); g.stroke(); }
+    else { g.beginPath(); g.arc(0, 6, 14, 0.35, Math.PI - 0.35); g.stroke(); }
+    g.restore();
+  }
+
+  // ---------- Muse ----------
+  function ik(sx, sy, tx, ty) {
+    const L1 = 165, L2 = 155, dx = tx - sx, dy = ty - sy, d = Math.hypot(dx, dy) || 1;
+    const dd = clamp(d, 40, L1 + L2 - 4), a = Math.atan2(dy, dx);
+    const k = Math.acos(clamp((L1 * L1 + dd * dd - L2 * L2) / (2 * L1 * dd), -1, 1));
+    let e = null;
+    for (const sg of [1, -1]) { const ea = a + sg * k, c = [sx + Math.cos(ea) * L1, sy + Math.sin(ea) * L1]; if (!e || c[1] > e[1]) e = c; }
+    return { e, h: [sx + dx / d * dd, sy + dy / d * dd] };
+  }
+  function hand(x, y, kind, side) {
+    if (kind === "thumb") {
+      paint(RR(x - 30, y - 26, 60, 56, 22), C.skin, { lw: 4 });
+      paint(CAP(x - side * 4, y - 22, x - side * 4, y - 62, 13), C.skin, { lw: 4, shadow: false });
+      g.save(); g.strokeStyle = edge(C.skin); g.lineWidth = 3; g.lineCap = "round";
+      for (const k of [-8, 6]) { g.beginPath(); g.moveTo(x - 18, y + k); g.lineTo(x + 14, y + k); g.stroke(); }
+      g.restore(); return;
+    }
+    if (kind === "wave") {
+      for (let k = 0; k < 4; k++) { const fx = x - 21 + k * 14; paint(CAP(fx, y - 10, fx + (k - 1.5) * 4, y - 52 + Math.abs(k - 1.5) * 7, 8.5), C.skin, { lw: 3.5, shadow: false }); }
+      paint(E(x + side * 30, y + 2, 13, 10, side * 0.6), C.skin, { lw: 3.5, shadow: false });
+      paint(E(x, y, 30, 27), C.skin, { lw: 4 });
+      return;
+    }
+    paint(E(x + side * 24, y - 12, 14, 12), C.skin, { lw: 4, shadow: false });
+    paint(E(x, y, 32, 30), C.skin, { lw: 4 });
+  }
+  function muse(m) {
+    const t = m.t;
+    g.save(); g.translate(m.x, m.y); g.scale(m.s, m.s);
+    const lk = m.look ?? [0, 0], brow = m.brow ?? 0.2, smile = m.smile ?? 0.6;
+    // hair (bob) behind the head
+    paint(RR(-184, -156, 368, 330, [180, 180, 80, 80]), C.hair, { shade: [-184, -156, 184, 174], lw: 4 });
+    // body
+    paint(RR(-36, 118, 72, 96, 26), C.skinShade, { shadow: false, lw: 4 });
+    paint(RR(-250, 205, 500, 620, [130, 130, 40, 40]), C.coat, { line: C.coatLine, shade: [-250, 205, 250, 800] });
+    paint(POLY([[-86, 207], [86, 207], [0, 372]]), C.top, { shadow: false });
+    paint(E(0, 207, 44, 26), C.skinShade, { shadow: false, line: false });
+    paint(POLY([[-88, 205], [-18, 318], [-62, 470], [-140, 222]]), C.lapel, { shadow: false, line: C.coatLine });
+    paint(POLY([[88, 205], [18, 318], [62, 470], [140, 222]]), C.lapel, { shadow: false, line: C.coatLine });
+    paint(RR(-210, 460, 96, 80, 16), C.lapel, { shadow: false, line: C.coatLine });
+    paint(CAP(-176, 430, -176, 480, 9), C.mustard, { shadow: false, lw: 3 });
+    // ears with stud earrings
+    for (const sx of [-1, 1]) {
+      paint(E(sx * 150, 22, 26, 34), C.skin, { lw: 4, shadow: false });
+      paint(E(sx * 154, 54, 10, 10), C.mustard, { lw: 3, shadow: false });
+      g.fillStyle = "#fff"; g.beginPath(); g.arc(sx * 154 - 3, 51, 3, 0, TAU); g.fill();
+    }
+    // head
+    paint(E(0, 10, 148, 152), C.skin, { shade: [-148, -142, 148, 162] });
+    // bangs
+    const b = new Path2D();
+    b.moveTo(-160, -6); b.bezierCurveTo(-178, -218, 178, -218, 160, -6);
+    b.quadraticCurveTo(132, -72, 82, -62); b.quadraticCurveTo(44, -100, 0, -66);
+    b.quadraticCurveTo(-46, -96, -88, -60); b.quadraticCurveTo(-136, -68, -160, -6); b.closePath();
+    paint(b, C.hair, { shadow: false, lw: 4 });
+    g.save(); g.strokeStyle = C.hairHi; g.lineWidth = 9; g.lineCap = "round"; g.globalAlpha = 0.7;
+    g.beginPath(); g.arc(0, -40, 132, -2.45, -1.95); g.stroke(); g.restore();
+    // eyes, brows, cheeks, nose, mouth
+    const blink = (t % 3.7) < 0.12;
+    for (const sx of [-1, 1]) {
+      if (blink) { g.save(); g.strokeStyle = C.ink; g.lineWidth = 6; g.lineCap = "round"; g.beginPath(); g.arc(sx * 55, 22, 20, 0.25, Math.PI - 0.25); g.stroke(); g.restore(); }
+      else {
+        g.fillStyle = C.ink; g.beginPath(); g.ellipse(sx * 55 + lk[0] * 6, 28 + lk[1] * 5, 20, 27, 0, 0, TAU); g.fill();
+        g.fillStyle = "#fff"; g.beginPath(); g.arc(sx * 55 + lk[0] * 6 + 7, 17 + lk[1] * 5, 7.5, 0, TAU); g.fill();
+        g.beginPath(); g.arc(sx * 55 + lk[0] * 6 - 6, 40 + lk[1] * 5, 3.5, 0, TAU); g.fill();
+        g.save(); g.strokeStyle = C.ink; g.lineWidth = 5; g.lineCap = "round"; g.beginPath(); g.moveTo(sx * 72, 6); g.lineTo(sx * 84, -2); g.stroke(); g.restore();
+      }
+      g.save(); g.strokeStyle = C.hair; g.lineWidth = 7; g.lineCap = "round"; g.beginPath();
+      g.moveTo(sx * 30, -30 - brow * 16); g.quadraticCurveTo(sx * 56, -42 - brow * 20, sx * 82, -30 - brow * 14); g.stroke(); g.restore();
+      g.fillStyle = "rgba(245,150,168,0.55)"; g.beginPath(); g.ellipse(sx * 92, 80, 27, 15, 0, 0, TAU); g.fill();
+    }
+    g.save(); g.strokeStyle = edge(C.skin); g.lineWidth = 5; g.lineCap = "round"; g.beginPath(); g.arc(0, 58, 9, 0.3, Math.PI - 0.3); g.stroke(); g.restore();
+    const open = m.open ?? 0;
+    if (open > 0.06) {
+      const mp = new Path2D(); mp.moveTo(-34, 100); mp.quadraticCurveTo(0, 108, 34, 100); mp.quadraticCurveTo(0, 116 + open * 30, -34, 100); mp.closePath();
+      paint(mp, C.mouth, { shadow: false, lw: 3 });
+      g.save(); g.clip(mp); g.fillStyle = C.tongue; g.beginPath(); g.ellipse(0, 114 + open * 18, 16, 9, 0, 0, TAU); g.fill(); g.restore();
+    } else {
+      g.save(); g.strokeStyle = C.mouth; g.lineWidth = 7; g.lineCap = "round"; g.beginPath();
+      g.moveTo(-36, 100); g.quadraticCurveTo(0, 100 + 36 * smile, 36, 100); g.stroke(); g.restore();
+    }
+    // arms
+    const A = ik(-200, 260, m.L[0], m.L[1]), B = ik(200, 260, m.R[0], m.R[1]);
+    for (const [arm, sx] of [[A, -200], [B, 200]]) {
+      paint(CAP(sx, 260, arm.e[0], arm.e[1], 46), C.coat, { line: C.coatLine });
+      paint(CAP(arm.e[0], arm.e[1], arm.h[0], arm.h[1], 40), C.coat, { line: C.coatLine, shadow: false });
+      const cx = arm.e[0] + (arm.h[0] - arm.e[0]) * 0.86, cy = arm.e[1] + (arm.h[1] - arm.e[1]) * 0.86;
+      paint(E(cx, cy, 30, 30), C.mustard, { shadow: false, lw: 3 });
+    }
+    if (m.prop) m.prop(A.h, B.h);
+    hand(A.h[0], A.h[1], m.handL ?? "open", -1);
+    hand(B.h[0], B.h[1], m.handR ?? "open", 1);
+    g.restore();
+  }
+  function talk(sc, t) {
+    if (t < sc.vStart || t > sc.vEnd) return 0;
+    return clamp(0.1 + 0.9 * Math.abs(Math.sin(t * 11.5)) * (0.55 + 0.45 * Math.sin(t * 3.3)), 0, 1);
+  }
+
+  // ---------- characters ----------
+  function antibody(x, y, s, o = {}) {
+    const a = o.arm ?? 0.62, flex = o.flex ?? 0;
+    g.save(); g.translate(x, y); g.scale(s, s); if (o.rot) g.rotate(o.rot);
+    if (o.cape > 0) {
+      const fl = Math.sin((o.t ?? 0) * 7) * 18;
+      const cp = new Path2D(); cp.moveTo(-60, -20); cp.lineTo(60, -20); cp.quadraticCurveTo(110 + fl, 120, 90 + fl, 210 * o.cape); cp.quadraticCurveTo(0, 190 * o.cape + fl * 0.5, -90 + fl, 210 * o.cape); cp.quadraticCurveTo(-110 + fl, 120, -60, -20); cp.closePath();
+      paint(cp, C.mustard, { lw: 4 });
+    }
+    paint(CAP(0, 20, 0, 190, 40), C.lav, { shade: [-40, 20, 40, 230] });
+    const tips = [];
+    for (const sx of [-1, 1]) {
+      const ang = sx * a, L = 215;
+      const ex = Math.sin(ang) * L, ey = -10 - Math.cos(ang) * L;
+      paint(CAP(0, -10, ex, ey, 38), C.lav, { shade: [-200, -200, 200, 40] });
+      const ox = Math.cos(ang) * 40 * sx, oy = Math.sin(ang) * 40 * sx;
+      paint(CAP(ex * 0.45 + ox, -10 + (ey + 10) * 0.45 + oy, ex + ox * 0.9, ey + oy * 0.9, 18), C.pink, { shadow: false, lw: 4 });
+      if (flex > 0) paint(E(ex * 0.5 - ox * 0.6, -10 + (ey + 10) * 0.5 - oy * 0.6, 34 * flex, 26 * flex, ang), C.lavDeep, { shadow: false, lw: 4 });
+      paint(E(ex, ey, 30, 30), C.mustard, { lw: 4 });
+      tips.push([ex, ey]);
+    }
+    paint(E(0, 0, 74, 70), C.lav, { shade: [-74, -70, 74, 70] });
+    face(0, 4, 1.05, { open: o.open ?? 0, blink: o.blink });
+    g.restore();
+    return tips.map(([tx, ty]) => [x + tx * s, y + ty * s]);
+  }
+  function miniAb(x, y, s, rot, alpha = 1) {
+    g.save(); g.globalAlpha = alpha; g.translate(x, y); g.rotate(rot); g.scale(s, s);
+    g.lineCap = "round"; g.strokeStyle = C.lavDeep; g.lineWidth = 12;
+    g.beginPath(); g.moveTo(0, 30); g.lineTo(0, 0); g.lineTo(-22, -26); g.moveTo(0, 0); g.lineTo(22, -26); g.stroke();
+    g.strokeStyle = C.lav; g.lineWidth = 7; g.stroke();
+    g.fillStyle = C.mustard; for (const sx of [-1, 1]) { g.beginPath(); g.arc(sx * 24, -28, 7, 0, TAU); g.fill(); }
+    g.restore();
+  }
+  function virus(x, y, s, t, o = {}) {
+    g.save(); g.translate(x, y); g.scale(s, s); g.rotate(o.rot ?? Math.sin(t * 3) * 0.12);
+    for (let k = 0; k < 10; k++) {
+      const a = k / 10 * TAU;
+      paint(CAP(Math.cos(a) * 60, Math.sin(a) * 60, Math.cos(a) * 92, Math.sin(a) * 92, 7), C.virusSpot, { shadow: false, lw: 3 });
+      paint(E(Math.cos(a) * 96, Math.sin(a) * 96, 15, 15), C.virus, { shadow: false, lw: 4 });
+    }
+    paint(E(0, 0, 72, 70), C.virus, { shade: [-72, -70, 72, 70] });
+    g.fillStyle = C.virusSpot; for (const [px, py, r] of [[-36, -34, 10], [38, 30, 8], [30, -44, 6]]) { g.beginPath(); g.arc(px, py, r, 0, TAU); g.fill(); }
+    face(0, 8, 0.95, { angry: true });
+    g.restore();
+  }
+  function cell(x, y, r, color, t, o = {}) {
+    g.save(); g.translate(x, y); g.scale(o.sx ?? 1, o.sy ?? 1);
+    if (o.wave) {
+      const w = Math.sin(t * 9 + (o.ph ?? 0)) * 0.5;
+      g.save(); g.translate(r * 0.8, -r * 0.2); g.rotate(-0.9 + w);
+      paint(CAP(0, 0, 0, -r * 0.75, r * 0.16), color, { shadow: false, lw: 4 }); g.restore();
+    }
+    paint(E(0, 0, r, r * 0.95), color, { shade: [-r, -r, r, r] });
+    g.fillStyle = "rgba(255,255,255,0.55)"; g.beginPath(); g.ellipse(-r * 0.4, -r * 0.45, r * 0.22, r * 0.13, -0.6, 0, TAU); g.fill();
+    face(0, r * 0.05, r / 95, { open: o.open ?? 0, blink: (t + (o.ph ?? 0)) % 4.1 < 0.12 });
+    if (o.thermo) {
+      g.save(); g.translate(r * 0.12, r * 0.2); g.rotate(-0.5);
+      paint(CAP(0, 0, r * 0.75, 0, r * 0.07), "#ffffff", { shadow: false, lw: 3 });
+      paint(CAP(r * 0.25, 0, r * 0.7, 0, r * 0.03), "#f27a8a", { shadow: false, line: false });
+      paint(E(0, 0, r * 0.11, r * 0.11), "#f27a8a", { shadow: false, lw: 3 });
+      g.restore();
+    }
+    g.restore();
+  }
+
+  // ---------- static set ----------
+  let BG, FG;
+  function buildStatic() {
+    const prev = g;
+    BG = document.createElement("canvas"); BG.width = W; BG.height = H; g = BG.getContext("2d");
+    const wall = g.createLinearGradient(0, 0, 0, 1440);
+    wall.addColorStop(0, "#fdf1e7"); wall.addColorStop(1, "#f1e8f7");
+    g.fillStyle = wall; g.fillRect(0, 0, W, H);
+    const sun = g.createRadialGradient(230, 640, 30, 230, 640, 900);
+    sun.addColorStop(0, "rgba(255,226,160,0.45)"); sun.addColorStop(1, "rgba(255,226,160,0)");
+    g.fillStyle = sun; g.fillRect(0, 0, W, H);
+    // bunting
+    g.strokeStyle = "#cdb9c8"; g.lineWidth = 4; g.beginPath(); g.moveTo(-10, 90); g.quadraticCurveTo(540, 200, 1090, 90); g.stroke();
+    const bc = [C.mustard, C.pink, C.mint, C.lav, C.sky];
+    for (let i = 0; i < 12; i++) {
+      const u = (i + 0.5) / 12, x = -10 + u * 1100, y = (1 - u) * (1 - u) * 90 + 2 * (1 - u) * u * 200 + u * u * 90;
+      paint(POLY([[x - 34, y], [x + 34, y], [x, y + 70]]), bc[i % 5], { lw: 3, blur: 8, sy: 4 });
+    }
+    // window
+    paint(RR(70, 470, 300, 340, 40), "#ffffff", { line: "#e5d6e1" });
+    const sky = g.createLinearGradient(0, 490, 0, 790); sky.addColorStop(0, "#bfe2f6"); sky.addColorStop(1, "#e6f4fb");
+    paint(RR(90, 490, 260, 300, 28), sky, { shadow: false, line: false });
+    paint(E(280, 560, 36, 36), C.mustard, { shadow: false, line: false });
+    paint(E(160, 640, 60, 24), "#ffffff", { shadow: false, line: false }); paint(E(200, 625, 40, 26), "#ffffff", { shadow: false, line: false });
+    paint(RR(214, 490, 12, 300, 6), "#ffffff", { shadow: false, line: false }); paint(RR(90, 634, 260, 12, 6), "#ffffff", { shadow: false, line: false });
+    // shelf with glassware and a plant
+    paint(RR(760, 700, 290, 28, 14), "#e8cfa8", {});
+    paint(POLY([[800, 600], [830, 600], [830, 630], [870, 698], [760, 698], [800, 630]]), C.glass, { lw: 4 });
+    paint(POLY([[782, 666], [848, 666], [870, 698], [760, 698]]), C.mint, { shadow: false, line: false });
+    paint(RR(890, 620, 64, 78, 14), C.glass, { lw: 4 }); paint(RR(890, 650, 64, 48, 12), C.pink, { shadow: false, line: false });
+    paint(RR(975, 650, 56, 48, 10), "#f2c7a8", { lw: 4 });
+    for (const [dx, dy, r] of [[-14, -34, 22], [14, -40, 20], [0, -58, 20]]) paint(E(1003 + dx, 650 + dy, r, r * 0.8), "#9fd3a8", { shadow: false, lw: 3 });
+    BG.done = true;
+
+    FG = document.createElement("canvas"); FG.width = W; FG.height = H; g = FG.getContext("2d");
+    paint(RR(-30, 1440, W + 60, 520, 40), "#bfe3d6", { sy: -6, line: "#9fcbbb", shade: [0, 1440, 0, 1920] });
+    paint(RR(-30, 1440, W + 60, 40, 20), "#d6efe5", { shadow: false, line: "#9fcbbb" });
+    for (const x of [40, 560]) paint(RR(x, 1520, 480, 380, 30), "#b4dccd", { shadow: false, line: "#9fcbbb", lw: 3 });
+    g = prev;
+  }
+
+  // ---------- scenes ----------
+  function ambient(t) { sparkles(t * 0.6, 540, 900, 520, 760, 9, 77, 18, "#ffffff"); }
+
+  function scene1(t, sc) {
+    const u = t - sc.start, pop = eob(seg(u, 0, 0.5));
+    chip(540, 330, "How Are Antibodies Made?", C.mustard, 66, eob(seg(u, 0.3, 0.75)));
+    sparkles(t, 540, 960, 400, 420, 8, 11, 30);
+    muse({ t, x: 540, y: 1010, s: 0.86 + 0.14 * pop, L: [-215, 520], R: [250 + Math.sin(t * 9) * 42, -70], handR: "wave", brow: 0.5, smile: 0.9, open: talk(sc, t), look: [0, 0] });
+  }
+  function scene2(t, sc) {
+    const u = t - sc.start;
+    const pop = eob(seg(u, 0.15, 0.6));
+    const flexP = seg(u, 1.0, 1.4) * (1 - seg(u, 3.4, 3.8));
+    const pump = flexP * (0.5 + 0.5 * Math.sin(u * 8));
+    const capeP = eob(seg(u, 2.4, 2.9));
+    const grab = wordAt(sc, 15), kick = wordAt(sc, 22);
+    let arm = 0.62 - pump * 0.28;
+    const toss = seg(u, kick, kick + 1.1);
+    const tossSwing = Math.sin(toss * Math.PI) * 0.5;
+    const x = 540, y = 980, s = 1.25 * (pop > 0 ? pop : 0.001);
+    sparkles(t, x, y - 60, 380, 380, 7, 21, 30);
+    if (flexP > 0.2) for (const sx of [-1, 1]) { g.save(); g.strokeStyle = C.mustard; g.lineWidth = 7; g.lineCap = "round"; for (let k = 0; k < 3; k++) { const a = -Math.PI / 2 + sx * (0.65 + k * 0.22); g.beginPath(); g.moveTo(x + Math.cos(a) * 300, y - 60 + Math.sin(a) * 300); g.lineTo(x + Math.cos(a) * 345, y - 60 + Math.sin(a) * 345); g.stroke(); } g.restore(); }
+    const armR = u > grab - 0.3 ? 0.62 + tossSwing : arm;
+    // draw antibody (two arm angles: left keeps flex, right may grab)
+    const tips = antibodyPose(x, y, s, arm, armR, flexP > 0 ? 0.6 + pump * 0.6 : 0, capeP, talk(sc, t), t, (t % 4.3) < 0.12);
+    // virus
+    const vEnter = eo(seg(u, grab - 1.6, grab - 0.2));
+    if (u > grab - 1.6 && toss < 1) {
+      let vx, vy, rot;
+      const tip = tips[1];
+      if (u < grab) { vx = 1250 - (1250 - (tip[0] + 90)) * vEnter; vy = 520 + (tip[1] - 520) * vEnter + Math.sin(t * 5) * 10; rot = Math.sin(t * 3) * 0.15; }
+      else if (toss <= 0) { vx = tip[0] + 70; vy = tip[1] - 60; rot = Math.sin(t * 14) * 0.2; }
+      else { const p = eio(toss); vx = tip[0] + 70 + p * 700; vy = tip[1] - 60 - p * 900 + Math.sin(p * Math.PI) * -120; rot = p * 9; }
+      virus(vx, vy, 0.95 * (1 - 0.5 * toss), t, { rot });
+    }
+    if (toss > 0.6) { const p = seg(u, kick + 0.66, kick + 1.4); sparkles(u * 3, 960, 260, 120 * (0.5 + p), 120 * (0.5 + p), 6, 31, 34); }
+  }
+  function antibodyPose(x, y, s, armL, armR, flex, cape, open, t, blink) {
+    // antibody() draws symmetric arms; draw with left angle, then redraw the right arm if it differs
+    if (Math.abs(armL - armR) < 1e-3) return antibody(x, y, s, { arm: armL, flex, cape, open, t, blink });
+    g.save(); g.beginPath(); g.rect(0, 0, x, H); g.clip();
+    antibody(x, y, s, { arm: armL, flex, cape, open, t, blink }); g.restore();
+    g.save(); g.beginPath(); g.rect(x, 0, W - x, H); g.clip();
+    const tips = antibody(x, y, s, { arm: armR, flex: 0, cape, open, t, blink }); g.restore();
+    return tips;
+  }
+  function tank(t, fillCells) {
+    paint(RR(470, 1300, 44, 150, 14), C.steelDeep, {}); paint(RR(706, 1300, 44, 150, 14), C.steelDeep, {});
+    paint(RR(790, 900, 210, 36, 18), C.steelDeep, {});
+    paint(E(985, 918, 34, 34), C.mustard, {});
+    paint(RR(430, 640, 360, 690, 80), C.steel, { shade: [430, 640, 790, 1330], line: "#9fb0c6" });
+    paint(E(610, 646, 180, 62), "#e8eef5", { line: "#9fb0c6" });
+    paint(E(610, 622, 70, 22), "#9fb0c6", { shadow: false, line: false });
+    paint(RR(430, 720, 360, 30, 12), C.mustard, { shadow: false, lw: 4 });
+    paint(RR(490, 790, 240, 440, 50), C.medium, { shadow: false, line: "#9fb0c6", lw: 6 });
+    g.save(); g.clip(RR(490, 790, 240, 440, 50));
+    const r = rng(55);
+    for (let i = 0; i < 14; i++) { const bx = 510 + r() * 200, sp = 60 + r() * 60, by = 1230 - ((r() * 440 + t * sp) % 440); g.strokeStyle = "rgba(255,255,255,0.85)"; g.lineWidth = 3; g.beginPath(); g.arc(bx + Math.sin(t * 3 + i) * 6, by, 5 + r() * 6, 0, TAU); g.stroke(); }
+    if (fillCells) fillCells();
+    g.restore();
+    paint(RR(452, 800, 18, 420, 9), "rgba(255,255,255,0.7)", { shadow: false, line: false });
+    paint(E(760, 1270, 22, 22), "#ffffff", { lw: 4 });
+    g.save(); g.strokeStyle = C.ink; g.lineWidth = 4; g.lineCap = "round"; g.beginPath(); g.moveTo(760, 1270); g.lineTo(760 + Math.cos(-0.8 + Math.sin(t) * 0.2) * 14, 1270 + Math.sin(-0.8 + Math.sin(t) * 0.2) * 14); g.stroke(); g.restore();
+  }
+  function scene3(t, sc) {
+    const u = t - sc.start;
+    const starAt = wordAt(sc, 24) - 0.4;
+    const inside = [];
+    const N = 6;
+    for (let i = 0; i < N; i++) {
+      const s0 = 0.3 + i * 0.8, arrive = s0 + 2.4;
+      if (u >= arrive) inside.push(i);
+    }
+    tank(t, () => {
+      const r = rng(66);
+      for (const i of inside) {
+        const p = eob(seg(u, 0.3 + i * 0.8 + 2.4, 0.3 + i * 0.8 + 2.9));
+        const bx = 540 + r() * 140, by = 860 + r() * 300;
+        cell(bx + Math.sin(t * 1.6 + i) * 14, by + Math.cos(t * 1.3 + i) * 16, 42 * p, CELLS[i], t, { ph: i });
+      }
+    });
+    for (let i = 0; i < N; i++) {
+      const s0 = 0.3 + i * 0.8, hopEnd = s0 + 1.6, arrive = s0 + 2.4;
+      if (u < s0 || u >= arrive) continue;
+      let x, y, sx = 1, sy = 1;
+      if (u < hopEnd) {
+        const p = (u - s0) / 1.6, hops = 2, hp = (p * hops) % 1;
+        x = -90 + p * 400; y = 1388 - Math.sin(hp * Math.PI) * 150;
+        const land = Math.min(hp, 1 - hp); if (land < 0.08) { sx = 1.15; sy = 0.86; } else { sx = 0.94; sy = 1.08; }
+      } else {
+        const p = eio((u - hopEnd) / 0.8);
+        x = 310 + (610 - 310) * p; y = 1388 + (600 - 1388) * p - Math.sin(p * Math.PI) * 260;
+        const shrink = 1 - seg(p, 0.85, 1) * 0.7; sx = sy = shrink;
+      }
+      cell(x, y, 52, CELLS[i], t, { sx, sy, ph: i, open: 0.4 });
+    }
+    if (u > starAt) {
+      for (let k = 0; k < 5; k++) {
+        const p = eob(seg(u, starAt + k * 0.14, starAt + k * 0.14 + 0.35));
+        if (p <= 0) continue;
+        g.save(); g.translate(450 + k * 80, 440 - (k === 2 ? 22 : k % 2 ? 10 : 0)); g.scale(p, p); g.rotate(Math.sin(t * 3 + k) * 0.1);
+        const st = []; for (let j = 0; j < 10; j++) { const a = j / 10 * TAU - Math.PI / 2, rr = j % 2 ? 15 : 36; st.push([Math.cos(a) * rr, Math.sin(a) * rr]); }
+        paint(POLY(st), C.mustard, { lw: 4 }); g.restore();
+      }
+      chip(610, 530, "Cell Hotel", "#ffffff", 40, eob(seg(u, starAt + 0.7, starAt + 1.1)));
+      sparkles(t, 610, 470, 300, 120, 6, 41, 24);
+    }
+  }
+  function scene4(t, sc) {
+    const u = t - sc.start;
+    const cx = 540, cy = 900, R = 430;
+    const cells = [[370, 800, C.pink, 0], [715, 790, C.mint, 1.7], [545, 1100, C.lav, 3.1]];
+    chip(270, 360, "sugar + nutrients", "#ffffff", 40, eob(seg(u, wordAt(sc, 3) - 0.2, wordAt(sc, 3) + 0.2)));
+    chip(600, 360, "37 °C", "#ffffff", 40, eob(seg(u, wordAt(sc, 8) - 0.2, wordAt(sc, 8) + 0.2)));
+    chip(860, 360, "oxygen", "#ffffff", 40, eob(seg(u, wordAt(sc, 12) - 0.2, wordAt(sc, 12) + 0.2)));
+    paint(E(cx, cy, R + 34, R + 34), C.steel, { shade: [cx - R, cy - R, cx + R, cy + R], line: "#9fb0c6" });
+    for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; paint(E(cx + Math.cos(a) * (R + 17), cy + Math.sin(a) * (R + 17), 9, 9), C.mustard, { shadow: false, lw: 3 }); }
+    const med = g.createRadialGradient(cx - 120, cy - 160, 40, cx, cy, R);
+    med.addColorStop(0, "#fde2ea"); med.addColorStop(1, "#f6b9c9");
+    paint(E(cx, cy, R, R), med, { shadow: false, line: "#9fb0c6" });
+    g.save(); g.clip(E(cx, cy, R, R));
+    const rb = rng(88);
+    for (let i = 0; i < 22; i++) { const bx = cx - R + rb() * R * 2, sp = 90 + rb() * 80, by = cy + R - ((rb() * 2 * R + u * sp) % (2 * R)); g.strokeStyle = "rgba(255,255,255,0.9)"; g.lineWidth = 4; g.beginPath(); g.arc(bx + Math.sin(t * 2 + i) * 10, by, 7 + rb() * 9, 0, TAU); g.stroke(); }
+    // antibodies leaving happy cells
+    const abStart = wordAt(sc, 15) - 0.3;
+    const ra = rng(99);
+    for (let k = 0; k < 48; k++) {
+      const born = abStart + k * 0.08, c = cells[k % 3], a = ra() * TAU, sp = 120 + ra() * 90, rot = ra() * TAU, spin = (ra() - 0.5) * 3;
+      if (u < born) continue;
+      const age = u - born, d = 110 + age * sp;
+      miniAb(c[0] + Math.cos(a) * d, c[1] + Math.sin(a) * d, 1.15 * eob(seg(age, 0, 0.3)), rot + spin * age, 1 - seg(age, 2.6, 3.4));
+    }
+    // food bubbles
+    const rf = rng(111);
+    const eatings = [0, 0, 0];
+    for (let i = 0; i < 12; i++) {
+      const s0 = 0.3 + i * 0.75, target = i % 3, c = cells[target];
+      const a = rf() * TAU, sx = cx + Math.cos(a) * (R + 40), sy = cy + Math.sin(a) * (R + 40);
+      const p = seg(u, s0, s0 + 1.7);
+      if (p <= 0 || p >= 1) { if (p >= 1 && u < s0 + 2.1) eatings[target] = Math.max(eatings[target], 1 - (u - s0 - 1.7) / 0.4); continue; }
+      const e = eio(p), mx = c[0] + 10, my = c[1] + 18;
+      const fx = sx + (mx - sx) * e + Math.sin(p * 9) * 20, fy = sy + (my - sy) * e;
+      const r = 24 * (1 - seg(p, 0.85, 1));
+      const gl = g.createRadialGradient(fx, fy, 2, fx, fy, r * 2.4); gl.addColorStop(0, "rgba(255,225,130,0.9)"); gl.addColorStop(1, "rgba(255,225,130,0)");
+      g.fillStyle = gl; g.beginPath(); g.arc(fx, fy, r * 2.4, 0, TAU); g.fill();
+      paint(E(fx, fy, r, r), C.mustardHi, { shadow: false, lw: 3, line: C.mustard });
+      if (p > 0.7) eatings[target] = Math.max(eatings[target], (p - 0.7) / 0.3);
+    }
+    for (const [x, y, col, ph] of cells) {
+      const i = cells.findIndex(c => c[0] === x), chomp = eatings[i];
+      const sq = 1 + Math.sin(t * 3 + ph) * 0.03;
+      cell(x + Math.sin(t * 1.2 + ph) * 12, y + Math.cos(t * 1.5 + ph) * 14, 118, col, t, { sx: sq, sy: 2 - sq, ph, open: chomp > 0 ? 0.3 + 0.7 * Math.abs(Math.sin(t * 14)) : 0, thermo: true });
+    }
+    g.restore();
+    g.save(); g.globalAlpha = 0.5; g.strokeStyle = "#ffffff"; g.lineWidth = 16; g.lineCap = "round"; g.beginPath(); g.arc(cx, cy, R - 40, -2.6, -1.9); g.stroke(); g.restore();
+    sparkles(t, cx, cy, R + 90, R + 90, 7, 51, 26);
+  }
+  function scene5(t, sc) {
+    const u = t - sc.start;
+    const thumbAt = wordAt(sc, 15);
+    const sx = 555, sy = 520, sw = 480, sh = 390;
+    paint(RR(780, 900, 34, 545, 14), "#cfc3f2", {});
+    paint(RR(700, 1420, 200, 30, 14), "#cfc3f2", {});
+    paint(RR(sx, sy, sw, sh, 44), "#cfc3f2", { line: "#a897d9", shade: [sx, sy, sx + sw, sy + sh] });
+    paint(RR(sx + 24, sy + 24, sw - 48, sh - 48, 28), "#2f3556", { shadow: false, line: false });
+    const day = Math.min(14, 1 + Math.floor(seg(u, 0.4, 6.4) * 13));
+    text(`Day ${day}`, sx + 60, sy + 64, 38, "#ffffff", { align: "left" });
+    // graph
+    const gx = sx + 60, gy = sy + 250, gw = sw - 120, gh = 150;
+    g.save(); g.strokeStyle = "rgba(255,255,255,0.15)"; g.lineWidth = 2;
+    for (let k = 0; k <= 3; k++) { g.beginPath(); g.moveTo(gx, gy - k * gh / 3); g.lineTo(gx + gw, gy - k * gh / 3); g.stroke(); }
+    g.restore();
+    const prog = eio(seg(u, 0.4, 6.4));
+    const line = (fn, col) => {
+      g.save(); g.strokeStyle = col; g.lineWidth = 8; g.lineCap = "round"; g.lineJoin = "round"; g.beginPath();
+      const n = 40, end = Math.max(1, Math.round(n * prog));
+      for (let k = 0; k <= end; k++) { const p = k / n, x = gx + p * gw, y = gy - fn(p) * gh; k ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.stroke();
+      const p = end / n; g.fillStyle = col; g.beginPath(); g.arc(gx + p * gw, gy - fn(p) * gh, 11, 0, TAU); g.fill(); g.restore();
+    };
+    line(p => 0.08 + 0.82 / (1 + Math.exp(-9 * (p - 0.4))), C.mint);
+    line(p => 0.04 + 0.92 * p * p, C.mustard);
+    const checks = [["temp", 2.0], ["pH", 2.7], ["O₂", 3.4]];
+    checks.forEach(([lab, at], k) => {
+      const p = eob(seg(u, at, at + 0.35)), x = sx + 110 + k * 135, y = sy + sh - 62;
+      if (p <= 0) return;
+      g.save(); g.translate(x, y); g.scale(p, p);
+      paint(RR(-62, -24, 124, 48, 24), "#ffffff", { shadow: false, line: false });
+      text(`${lab} ✓`, 0, 3, 27, C.ink); g.restore();
+    });
+    sparkles(t, sx + sw / 2, sy + sh / 2, sw * 0.62, sh * 0.66, 9, 61, 26);
+    const th = u > thumbAt;
+    if (th) sparkles(t * 1.4, 520, 760, 150, 150, 5, 63, 32);
+    muse({ t, x: 300, y: 1020, s: 0.9, L: [-215, 520], R: th ? [235, -40 - eob(seg(u, thumbAt, thumbAt + 0.35)) * 40] : [300, -90], handR: th ? "thumb" : "open", brow: th ? 0.6 : 0.3, smile: th ? 1 : 0.6, open: talk(sc, t), look: [1, -0.4] });
+  }
+  function scene6(t, sc) {
+    const u = t - sc.start;
+    chip(540, 360, "Harvest!", C.mustard, 60, eob(seg(u, wordAt(sc, 3) - 0.25, wordAt(sc, 3) + 0.15)));
+    // flask with collected antibodies
+    const fill = 30 + 150 * eio(seg(u, 1.8, 9.5));
+    const flask = POLY([[495, 1185], [585, 1185], [585, 1245], [730, 1420], [350, 1420], [495, 1245]]);
+    paint(flask, C.glass, { alpha: 0.95, line: "#9fb0c6" });
+    g.save(); g.clip(flask); paint(RR(300, 1420 - fill, 480, fill + 10, 0), C.lav, { shadow: false, line: false, alpha: 0.9 }); g.restore();
+    paint(RR(480, 1168, 120, 28, 14), "#e8eef5", { shadow: false, line: "#9fb0c6", lw: 4 });
+    // funnel
+    const fun = POLY([[230, 615], [850, 615], [600, 1010], [600, 1180], [480, 1180], [480, 1010]]);
+    paint(fun, C.glass, { alpha: 0.88, line: "#9fb0c6" });
+    paint(E(540, 615, 310, 46), "#eef8fc", { shadow: false, line: "#9fb0c6", alpha: 0.95 });
+    // antibodies passing through
+    const ra = rng(123), start = wordAt(sc, 6) - 0.6;
+    for (let k = 0; k < 42; k++) {
+      const born = start + k * 0.16, x0 = 360 + ra() * 360, rot = ra() * TAU, settleX = 430 + ra() * 220, settleY = 1415 - ra() * (fill - 20);
+      if (u < born) continue;
+      const age = u - born;
+      let x, y, alpha = 1;
+      if (age < 0.9) { const p = age / 0.9; x = x0; y = 640 + p * 140; }
+      else if (age < 1.8) { const p = eio((age - 0.9) / 0.9); x = x0 + (540 - x0) * p; y = 780 + p * 230; }
+      else if (age < 2.5) { const p = (age - 1.8) / 0.7; x = 540 + Math.sin(p * 6) * 12; y = 1010 + p * 230; }
+      else { const p = eo(seg(age, 2.5, 3.2)); x = 540 + (settleX - 540) * p; y = 1240 + (settleY - 1240) * p; alpha = 1 - seg(age, 3.4, 4.4) * 0.6; }
+      miniAb(x, y, 0.95, rot + age * 1.5, alpha);
+    }
+    // filter mesh
+    g.save(); g.strokeStyle = C.mustard; g.lineWidth = 12; g.lineCap = "round"; g.beginPath(); g.moveTo(322, 780); g.lineTo(758, 780); g.stroke();
+    g.fillStyle = "#ffffff"; for (let x = 340; x < 750; x += 26) { g.beginPath(); g.arc(x, 780, 3.5, 0, TAU); g.fill(); } g.restore();
+    // cells staying on top of the filter, waving
+    const wave = u > 1.5;
+    [[410, C.pink], [540, C.mint], [670, C.peach]].forEach(([x, col], i) => {
+      const p = eob(seg(u, 0.1 + i * 0.15, 0.5 + i * 0.15));
+      if (p > 0) cell(x, 722 + Math.sin(t * 4 + i) * 4, 58 * p, col, t, { ph: i * 1.3, wave, open: 0 });
+    });
+    chip(905, 700, "cells stay", "#ffffff", 34, eob(seg(u, 3.2, 3.6)));
+    chip(860, 1330, "antibodies", C.lav, 34, eob(seg(u, 3.8, 4.2)));
+    sparkles(t, 540, 1330, 230, 120, 5, 71, 24);
+  }
+  function scene7(t, sc) {
+    const u = t - sc.start;
+    const rc = rng(150), cols = [C.mustard, C.pink, C.mint, C.lav, C.sky, "#ffffff"];
+    const conf = [];
+    for (let i = 0; i < 70; i++) conf.push([rc() * 1080, -60 - rc() * 500, 180 + rc() * 220, rc() * TAU, (rc() - 0.5) * 8, cols[i % 6], 14 + rc() * 10]);
+    muse({ t, x: 540, y: 1010, s: 1, L: [-215, 520], R: [225, -235 + Math.sin(t * 4) * 8], brow: 0.6, smile: 1, open: talk(sc, t), look: [0.8, -0.8],
+      prop(_, h) {
+        const [x, y] = h, gl = 0.75 + 0.25 * Math.sin(t * 5);
+        const glow = g.createRadialGradient(x, y - 110, 10, x, y - 110, 230 * gl);
+        glow.addColorStop(0, "rgba(255,220,120,0.85)"); glow.addColorStop(1, "rgba(255,220,120,0)");
+        g.fillStyle = glow; g.beginPath(); g.arc(x, y - 110, 230 * gl, 0, TAU); g.fill();
+        paint(RR(x - 46, y - 200, 92, 170, 26), C.glass, { line: "#9fb0c6" });
+        paint(RR(x - 46, y - 140, 92, 110, [0, 0, 26, 26]), C.lav, { shadow: false, line: false });
+        paint(RR(x - 50, y - 236, 100, 46, 14), C.mustard, { lw: 4 });
+        paint(RR(x - 40, y - 120, 80, 56, 12), "#ffffff", { shadow: false, lw: 3 });
+        miniAb(x, y - 92, 0.7, 0, 1);
+        sparkles(t * 1.3, x, y - 110, 160, 160, 6, 81, 30);
+      } });
+    for (const [x, y0, vy, r0, vr, col, sz] of conf) {
+      const y = y0 + vy * (u - 0.2) * 1.3;
+      if (u < 0.2 || y > 1450) continue;
+      g.save(); g.translate(x + Math.sin(u * 3 + r0) * 30, y); g.rotate(r0 + vr * u);
+      g.fillStyle = col; g.fillRect(-sz / 2, -sz / 4, sz, sz / 2); g.restore();
+    }
+    chip(540, 330, "Stay curious, from Muse!", C.mustard, 62, eob(seg(u, wordAt(sc, 6) - 0.2, wordAt(sc, 6) + 0.25)));
+  }
+  const RENDER = [scene1, scene2, scene3, scene4, scene5, scene6, scene7];
+
+  // ---------- captions ----------
+  function captions(sc, t) {
+    let idx = -1; sc.wt.forEach((wt, i) => { if (t >= wt) idx = i; });
+    const spoken = t > sc.vEnd + 0.2;
+    const chunk = sc.chunks.find(c => c.includes(Math.max(idx, 0)));
+    if (!chunk) return;
+    const words = chunk.map(i => sc.words[i]);
+    let size = 62, font, widths, space, total;
+    do {
+      font = `900 ${size}px ${FB}`; g.save(); g.font = font;
+      widths = words.map(w => g.measureText(w).width); space = g.measureText(" ").width * 1.5 + 4; g.restore();
+      total = widths.reduce((a, b) => a + b, 0) + space * (words.length - 1); size -= 2;
+    } while (total > 960 && size > 36);
+    let x = 540 - total / 2; const y = 1560;
+    g.save(); g.font = font; g.textAlign = "left"; g.textBaseline = "middle"; g.lineJoin = "round";
+    words.forEach((w, k) => {
+      const active = !spoken && chunk[k] === idx;
+      g.lineWidth = 14; g.strokeStyle = "rgba(58,38,54,0.94)"; g.strokeText(w, x, y);
+      g.fillStyle = active ? "#f6c94e" : "#ffffff"; g.fillText(w, x, y);
+      x += widths[k] + space;
+    });
+    g.restore();
+  }
+
+  // ---------- frame ----------
+  const canvas = document.getElementById("reel");
+  const main = canvas.getContext("2d");
+  function renderAt(tRaw) {
+    const t = clamp(tRaw, 0, DUR - 0.001);
+    g = main;
+    if (!BG) buildStatic();
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.drawImage(BG, 0, 0);
+    const i = Math.max(0, SCENES.findIndex(s => t >= s.start && t < s.end)), sc = SCENES[i];
+    ambient(t);
+    RENDER[i](t, sc);
+    g.drawImage(FG, 0, 0);
+    captions(sc, t);
+    const u = t - sc.start;
+    if (i > 0 && u < 0.3) {
+      const p = u / 0.3;
+      g.fillStyle = `rgba(255,250,240,${(1 - p) * 0.75})`; g.fillRect(0, 0, W, H);
+      sparkle(540, 900, 160 * (1 - p) + 20, C.mustard);
+    }
+    return i;
+  }
+  window.renderAt = renderAt;
+
+  // ---------- page UI ----------
+  const $ = id => document.getElementById(id);
+  const list = $("scenes"), fmt = s => `0:${String(Math.floor(s)).padStart(2, "0")}`;
+  SCENES.forEach(s => {
+    const li = document.createElement("li"); li.tabIndex = 0;
+    li.innerHTML = `<span class="when"><b></b>${fmt(s.start)}–${s.end === 60 ? "1:00" : fmt(s.end)}</span><p class="vo"></p><p class="vis"></p>`;
+    li.querySelector("b").textContent = s.label;
+    li.querySelector(".vo").textContent = `“${s.vo}”`; li.querySelector(".vis").textContent = s.vis;
+    const go = () => seek(s.start);
+    li.addEventListener("click", go); li.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    list.appendChild(li);
+  });
+  const items = [...list.children];
+  const audio = $("music");
+  const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+  if (!synth) $("voiceWrap").hidden = true;
+  let t = 0, playing = false, last = 0, lastScene = -1, spoken = -1;
+  function speak(i) {
+    if (!synth || !$("voice").checked) return;
+    try { synth.cancel(); const s = SCENES[i], u = new SpeechSynthesisUtterance(s.vo); u.lang = "en-GB"; u.rate = clamp((s.words.length / 2.6) / (s.vEnd - s.vStart), 0.95, 1.4); synth.speak(u); } catch (e) { /* optional */ }
+  }
+  function syncAudio() {
+    try {
+      audio.muted = !$("musicOn").checked;
+      if (playing) { if (Math.abs(audio.currentTime - t) > 0.15) audio.currentTime = t; const p = audio.play(); if (p) p.catch(() => {}); }
+      else audio.pause();
+    } catch (e) { /* audio is optional */ }
+  }
+  function seek(v) { t = clamp(v, 0, DUR); spoken = -1; if (synth) synth.cancel(); try { audio.currentTime = t; } catch (e) {} if (!playing) draw(); }
+  function setPlaying(p) {
+    playing = p; $("play").textContent = p ? "Pause" : t >= DUR - 0.01 ? "Replay" : "Play";
+    if (!p && synth) synth.cancel();
+    last = performance.now(); spoken = -1; syncAudio();
+  }
+  function draw() {
+    const i = renderAt(t);
+    $("seek").value = t.toFixed(2); $("time").textContent = `${fmt(Math.min(t, 59.99))} / 1:00`;
+    if (i !== lastScene) { items.forEach((li, k) => li.classList.toggle("on", k === i)); lastScene = i; }
+    if (playing && i !== spoken) { spoken = i; if (t - SCENES[i].start < 0.4) speak(i); }
+  }
+  function loop(now) {
+    if (playing) {
+      const dt = (now - last) / 1000; last = now;
+      const useAudio = !audio.paused && audio.readyState >= 2 && !audio.ended;
+      t = useAudio ? audio.currentTime : t + dt;
+      if (t >= DUR) { t = DUR; setPlaying(false); }
+      draw();
+    }
+    requestAnimationFrame(loop);
+  }
+  $("play").addEventListener("click", () => { if (t >= DUR - 0.01) seek(0); setPlaying(!playing); });
+  $("restart").addEventListener("click", () => { seek(0); setPlaying(true); });
+  $("seek").addEventListener("input", e => seek(parseFloat(e.target.value)));
+  $("musicOn").addEventListener("change", syncAudio);
+  $("voice").addEventListener("change", () => { if (!$("voice").checked && synth) synth.cancel(); });
+  draw();
+  document.fonts.ready.then(draw);
+  Promise.all(['800 66px "Baloo 2"', "900 60px Nunito"].map(f => document.fonts.load(f))).then(draw).catch(() => {});
+  requestAnimationFrame(loop);
+})();
+</script>
